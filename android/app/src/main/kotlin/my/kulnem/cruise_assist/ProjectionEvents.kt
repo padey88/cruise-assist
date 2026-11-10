@@ -1,6 +1,6 @@
 package my.kulnem.cruise_assist
 
-import android.hardware.usb.UsbAccessory
+import android.content.Context
 import java.util.concurrent.ConcurrentLinkedQueue
 
 /** In-process bridge to Flutter. Events are also kept briefly for late channel listeners. */
@@ -26,6 +26,7 @@ object ProjectionStateHolder {
     @Volatile var state: String = "idle"
         private set
 
+    @Suppress("UNUSED_PARAMETER")
     fun update(context: Context, value: String) {
         state = value
         ProjectionEvents.emit(mapOf("type" to "state", "state" to value))

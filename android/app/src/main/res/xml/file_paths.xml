@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  open_filex FileProvider paths.
+  Superset of the plugin's own res/xml/filepaths.xml so that replacing the
+  meta-data resource does not drop coverage the plugin relies on
+  (files-path and cache-path are needed to open the downloaded update APK).
+-->
+<paths>
+    <external-path name="external_files" path="." />
+    <external-path name="external-path" path="." />
+    <external-cache-path name="external-cache-path" path="." />
+    <external-files-path name="external-files-path" path="." />
+    <files-path name="files_path" path="." />
+    <cache-path name="cache-path" path="." />
+    <root-path name="root" path="." />
+</paths>

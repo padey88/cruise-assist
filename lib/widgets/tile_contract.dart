@@ -68,6 +68,8 @@ class TileContext {
 
 /// A dashboard tile. Register in `lib/widgets/registry.dart`.
 abstract class TileRenderer {
+  const TileRenderer();
+
   /// Stable id; matches the original app's widget keys where one exists.
   String get id;
 

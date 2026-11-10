@@ -3,11 +3,10 @@ package my.kulnem.cruise_assist
 import android.content.Context
 import android.hardware.usb.UsbAccessory
 import android.hardware.usb.UsbManager
-import android.os.Build
-import java.io.FileInputStreamimport java.io.FileInputStream
+import android.os.ParcelFileDescriptor
+import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
-import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicBoolean
 
 /** Owns the single Android Open Accessory connection and its blocking I/O thread. */
@@ -37,8 +36,6 @@ class UsbAoaController(private val context: Context) {
         "serial" to safeSerial(accessory),
         "uri" to accessory.uri,
         "hasPermission" to hasPermission(accessory),
-        "vendorId" to if (Build.VERSION.SDK_INT >= 34) accessory.vendorId else null,
-        "productId" to if (Build.VERSION.SDK_INT >= 34) accessory.productId else null,
     )
 
     /** Starts permission negotiation or opens an accessory already approved by Android. */
@@ -188,8 +185,5 @@ class UsbAoaController(private val context: Context) {
 
     private fun emit(type: String, data: Map<String, Any?>) {
         ProjectionEvents.emit(mapOf("type" to type) + data)
-    }
-
-    companion object {
     }
 }

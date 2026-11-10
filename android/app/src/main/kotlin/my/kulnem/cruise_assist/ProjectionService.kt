@@ -13,6 +13,7 @@ import android.hardware.usb.UsbAccessory
 import android.hardware.usb.UsbManager
 import android.os.Build
 import android.os.IBinder
+import android.util.Log
 
 /** Lifecycle owner for USB/AOA diagnostics; it does not implement video projection. */
 class ProjectionService : Service() {
@@ -54,11 +55,13 @@ class ProjectionService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        // Always promote to foreground first: Android requires startForeground()
+        // within 5s of startForegroundService(), and the stop path uses it too.
+        startForegroundNotification()
         if (intent?.action == ACTION_STOP) {
             stopProjection()
             return START_NOT_STICKY
         }
-        startForegroundNotification()
         ProjectionStateHolder.update(this, "idle")
         if (controller == null) controller = UsbAoaController(this)
         controller?.start()
@@ -106,7 +109,18 @@ class ProjectionService : Service() {
             .addAction(android.app.Notification.Action.Builder(null, "Stop", stopIntent).build())
             .build()
         if (Build.VERSION.SDK_INT >= 29) {
-            startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE)
+            // On API 34+ the connectedDevice type requires a qualifying device
+            // permission (USB_PERMISSION). If the user has not granted USB
+            // access yet the platform throws; degrade instead of crashing.
+            try {
+                startForeground(
+                    NOTIFICATION_ID, notification,
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE,
+                )
+            } catch (e: SecurityException) {
+                Log.w(TAG, "connectedDevice foreground type not permitted: ${e.message}")
+                startForeground(NOTIFICATION_ID, notification)
+            }
         } else {
             startForeground(NOTIFICATION_ID, notification)
         }
@@ -133,5 +147,6 @@ class ProjectionService : Service() {
         const val ACTION_STOP = "my.kulnem.cruise_assist.projection.STOP"
         private const val CHANNEL_ID = "head_unit"
         private const val NOTIFICATION_ID = 41
+        private const val TAG = "CruiseProjection"
     }
 }

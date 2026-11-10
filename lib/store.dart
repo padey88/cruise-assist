@@ -324,9 +324,16 @@ class AppStore extends ChangeNotifier {
     await _put(_kPayloads, next);
   }
 
-  Object? _encodePayload(Object v) {
-    if (v is List) return v.map(_encodePayload).toList();
-    if (v is Map) return v.map((k, val) => MapEntry(k.toString(), _encodePayload(val)));
+  Object? _encodePayload(Object? v) {
+    if (v == null) return null;
+    if (v is List) {
+      return v.map<Object?>((e) => _encodePayload(e)).toList();
+    }
+    if (v is Map) {
+      return v.map<String, Object?>(
+        (k, val) => MapEntry(k.toString(), _encodePayload(val)),
+      );
+    }
     if (v is DateTime) return v.toIso8601String();
     return v;
   }

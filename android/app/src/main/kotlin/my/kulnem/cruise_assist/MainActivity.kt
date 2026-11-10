@@ -1,6 +1,7 @@
 package my.kulnem.cruise_assist
 
 import android.content.Intent
+import android.os.Build
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.EventChannel
@@ -9,6 +10,7 @@ import io.flutter.plugin.common.MethodChannel
 class MainActivity : FlutterActivity() {
     private val methods = "my.kulnem.cruise_assist/projection"
     private val events = "my.kulnem.cruise_assist/projection_events"
+    private val deviceChannel = "my.kulnem.cruise_assist/device_info"
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -20,7 +22,7 @@ class MainActivity : FlutterActivity() {
                         result.success(null)
                     }
                     "stop" -> {
-                        startService(Intent(this, ProjectionService::class.java).setAction(ProjectionService.ACTION_STOP))
+                        startForegroundService(Intent(this, ProjectionService::class.java).setAction(ProjectionService.ACTION_STOP))
                         result.success(null)
                     }
                     "status" -> result.success(mapOf("state" to ProjectionStateHolder.state))
@@ -46,6 +48,21 @@ class MainActivity : FlutterActivity() {
                 }
             },
         )
+        // Device info channel
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, deviceChannel).setMethodCallHandler { call, result ->
+            when (call.method) {
+                "getDeviceInfo" -> {
+                    result.success(mapOf(
+                        "model" to Build.MODEL,
+                        "manufacturer" to Build.MANUFACTURER,
+                        "sdk" to Build.VERSION.SDK_INT.toString(),
+                        "abi" to (Build.SUPPORTED_ABIS.firstOrNull() ?: "unknown"),
+                        "androidVersion" to Build.VERSION.RELEASE,
+                    ))
+                }
+                else -> result.notImplemented()
+            }
+        }
     }
 
     override fun cleanUpFlutterEngine(flutterEngine: FlutterEngine) {

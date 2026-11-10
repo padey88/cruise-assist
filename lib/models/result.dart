@@ -18,10 +18,11 @@ class Fetch<T> {
         stale = false,
         message = null;
 
-  static Fetch<T> ok<T>(T value, DateTime at) =>
+  static Fetch<T> success<T>(T value, DateTime at) =>
       Fetch<T>(value: value, at: at);
 
-  static Fetch<T> failed<T>(String message, {T? value, DateTime? at}) => Fetch<T>(
+  static Fetch<T> failure<T>(String message, {T? value, DateTime? at}) =>
+      Fetch<T>(
         value: value,
         at: at,
         stale: value != null,

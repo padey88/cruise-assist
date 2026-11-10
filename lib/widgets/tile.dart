@@ -43,7 +43,7 @@ class TileCard extends StatelessWidget {
                         style: const TextStyle(
                             fontSize: 13, fontWeight: FontWeight.w600)),
                   ),
-                  if (trailing != null) trailing!,
+                  if (trailing != null) ...[trailing!],
                 ]),
               ),
               const SizedBox(height: 6),
@@ -60,16 +60,30 @@ class TileMessage extends StatelessWidget {
   const TileMessage(this.label, {super.key, this.icon = Icons.cloud_off});
 
   @override
-  Widget build(BuildContext context) => Center(
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(icon, color: CA.dim, size: 26),
-          const SizedBox(height: 6),
-          Text(label,
-              textAlign: TextAlign.center,
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(color: CA.dim, fontSize: 12)),
-        ]),
+  Widget build(BuildContext context) => LayoutBuilder(
+        // The tile can be smaller than an icon + three lines of text, so clip
+        // rather than overflow: a short tile must still render a legible hint.
+        builder: (context, constraints) {
+          final compact = constraints.maxHeight < 72;
+          return Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (!compact) ...[
+                  Icon(icon, color: CA.dim, size: 26),
+                  const SizedBox(height: 6),
+                ],
+                Text(
+                  label,
+                  textAlign: TextAlign.center,
+                  maxLines: compact ? 2 : 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(color: CA.dim, fontSize: 12),
+                ),
+              ],
+            ),
+          );
+        },
       );
 }
 
@@ -154,23 +168,66 @@ abstract class SimpleTile extends TileRenderer {
   Set<Surface> get surfaces => supportedSurfaces;
 }
 
-T? payloadValue<T>(TileContext ctx, String key) {
+/// Reads a model payload. The application stores payloads either as a
+/// [Fetch] wrapper or as plain JSON maps (cached by the store), so all three
+/// shapes are accepted.
+T? payloadModel<T>(
+  TileContext ctx,
+  String key,
+  T Function(Map<String, dynamic>) decode,
+) {
   final raw = ctx.payloads[key];
-  if (raw is Fetch<T>) return raw.value;
-  // Accept decoded/direct values as well, which keeps previews and cached
-  // payloads useful. The normal application path remains Fetch<T>.
+  if (raw is Fetch) {
+    final value = raw.value;
+    if (value is T) return value;
+    if (value is Map) return decode(value.cast<String, dynamic>());
+    return null;
+  }
   if (raw is T) return raw;
+  if (raw is Map) {
+    try {
+      return decode(raw.cast<String, dynamic>());
+    } on Object {
+      return null;
+    }
+  }
   return null;
 }
 
-List<T> payloadList<T>(TileContext ctx, String key) {
-  final value = payloadValue<dynamic>(ctx, key);
-  if (value is List) return value.whereType<T>().toList(growable: false);
-  return const [];
+List<T> payloadModels<T>(
+  TileContext ctx,
+  String key,
+  T Function(Map<String, dynamic>) decode,
+) {
+  final raw = ctx.payloads[key];
+  final list = raw is Fetch ? raw.value : raw;
+  if (list is! List) return const [];
+  final out = <T>[];
+  for (final entry in list) {
+    if (entry is T) {
+      out.add(entry);
+    } else if (entry is Map) {
+      try {
+        out.add(decode(entry.cast<String, dynamic>()));
+      } on Object {
+        // A single malformed entry must not break the whole tile.
+      }
+    }
+  }
+  return out;
+}
+
+/// Raw list of maps, for payloads without a dedicated model.
+List<Map<String, dynamic>> payloadMaps(TileContext ctx, String key) {
+  final raw = ctx.payloads[key];
+  final list = raw is Fetch ? raw.value : raw;
+  if (list is! List) return const [];
+  return [for (final e in list) if (e is Map) e.cast<String, dynamic>()];
 }
 
 Map<String, dynamic> payloadMap(TileContext ctx, String key) {
-  final value = payloadValue<dynamic>(ctx, key);
+  final raw = ctx.payloads[key];
+  final value = raw is Fetch ? raw.value : raw;
   if (value is Map) {
     return value.map((k, v) => MapEntry(k.toString(), v));
   }

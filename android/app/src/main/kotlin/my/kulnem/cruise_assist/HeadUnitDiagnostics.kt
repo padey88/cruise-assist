@@ -40,7 +40,7 @@ object HeadUnitDiagnostics {
             else -> "unrecognised-aoa-accessory"
         }
         Log.i(TAG, "AOA descriptor classifier=$classifier manufacturer=${quoted(manufacturer)} " +
-            "model=${quoted(model)} vendorId=${accessory["vendorId"]} productId=${accessory["productId"]}")
+            "model=${quoted(model)} uri=${quoted(accessory["uri"]?.toString().orEmpty())}")
         return mapOf("kind" to "accessory", "classifier" to classifier, "accessory" to accessory)
     }
 

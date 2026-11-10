@@ -2,6 +2,7 @@ package my.kulnem.cruise_assist
 
 import android.app.Activity
 import android.content.Intent
+import android.hardware.usb.UsbAccessory
 import android.hardware.usb.UsbManager
 import android.os.Bundle
 

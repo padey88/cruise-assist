@@ -1,0 +1,144 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to release (must already exist, e.g. v0.1.0)'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve tag
+        id: tag
+        run: |
+          if [ -n "${{ github.event.inputs.tag }}" ]; then
+            echo "name=${{ github.event.inputs.tag }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "name=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: '3.47.9'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Test
+        run: flutter test
+
+      # Signing material is optional. Without it the Gradle build falls back to
+      # debug signing so a release artifact is still produced.
+      - name: Decode signing keystore
+        id: keystore
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PW: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PW: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          if [ -z "${KEYSTORE_B64}" ] || [ -z "${KEYSTORE_PW}" ] || [ -z "${KEY_ALIAS}" ] || [ -z "${KEY_PW}" ]; then
+            echo "::warning::Release keystore secrets are not set. Building with DEBUG signing. The APK will install but cannot upgrade over a release-signed install."
+            echo "signed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "${KEYSTORE_B64}" | base64 -d > android/app/release.jks
+          cat > android/key.properties <<EOF
+          storePassword=${KEYSTORE_PW}
+          keyPassword=${KEY_PW}
+          keyAlias=${KEY_ALIAS}
+          storeFile=release.jks
+          EOF
+          chmod 600 android/key.properties android/app/release.jks
+          echo "signed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Build universal APK
+        run: flutter build apk --release
+
+      - name: Build per-ABI APKs
+        run: flutter build apk --release --split-per-abi
+
+      - name: Rename artifacts
+        id: artifacts
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          TAG="${{ steps.tag.outputs.name }}"
+          VER="${TAG#v}"
+          cp build/app/outputs/flutter-apk/app-release.apk \
+             "dist/cruise-assist-${VER}-universal.apk"
+          cp build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk \
+             "dist/cruise-assist-${VER}-armeabi-v7a.apk"
+          cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk \
+             "dist/cruise-assist-${VER}-arm64-v8a.apk"
+          ( cd dist && sha256sum ./*.apk > SHA256SUMS.txt )
+          ls -la dist
+          cat dist/SHA256SUMS.txt
+
+      - name: Extract changelog section
+        id: notes
+        run: |
+          set -euo pipefail
+          VER="${{ steps.tag.outputs.name }}"
+          VER="${VER#v}"
+          python3 - "$VER" > release_notes.md <<'PY'
+          import re, sys
+          ver = sys.argv[1]
+          text = open('CHANGELOG.md', encoding='utf-8').read()
+          # Match "## [0.1.0] - date" or "## [0.1.0]"
+          pat = re.compile(r'^##\s*\[?' + re.escape(ver) + r'\]?.*?$', re.M)
+          m = pat.search(text)
+          if not m:
+              print(f"Release {ver}. See CHANGELOG.md for details.")
+              sys.exit(0)
+          rest = text[m.end():]
+          nxt = re.search(r'^##\s', rest, re.M)
+          body = rest[:nxt.start()] if nxt else rest
+          print(body.strip())
+          PY
+          echo "--- notes ---"
+          cat release_notes.md
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.name }}
+          name: Cruise Assist ${{ steps.tag.outputs.name }}
+          body_path: release_notes.md
+          draft: false
+          prerelease: ${{ contains(steps.tag.outputs.name, '-') }}
+          files: |
+            dist/*.apk
+            dist/SHA256SUMS.txt
+          fail_on_unmatched_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Clean up signing material
+        if: always()
+        run: rm -f android/key.properties android/app/release.jks

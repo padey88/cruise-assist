@@ -4,6 +4,10 @@
 *.pyc
 *.swp
 .DS_Store
+
+# Release artifacts
+dist/
+release_notes.md
 .atom/
 .build/
 .buildlog/

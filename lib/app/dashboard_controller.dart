@@ -7,9 +7,8 @@ import '../data/fuel_service.dart';
 import '../data/fx_service.dart';
 import '../data/prayer_service.dart';
 import '../data/weather_service.dart';
-import '../models/data.dart';
+import '../models/result.dart';
 import '../store.dart';
-import 'strings.dart';
 
 /// Central refresh coordinator.
 ///
@@ -96,14 +95,14 @@ class DashboardController extends ChangeNotifier {
     final lng = s.lng ?? 101.6869;
     await _guard('weather', () async {
       final now = await weather.current(lat, lng);
-      _apply('weather', now, WeatherNow.fromJson);
+      _apply('weather', now, (v) => v.toJson());
       final fc = await weather.forecast(lat, lng);
       if (fc.value != null) {
         payloads['forecast'] = fc.value!.map((e) => e.toJson()).toList();
         updatedAt['forecast'] = DateTime.now();
       }
       final air = await weather.air(lat, lng);
-      _apply('air', air, AirQuality.fromJson);
+      _apply('air', air, (v) => v.toJson());
     });
   }
 
@@ -114,7 +113,7 @@ class DashboardController extends ChangeNotifier {
         zone: store.settings.prayerZone,
         date: DateTime.now(),
       );
-      _apply('prayer', day, PrayerDay.fromJson);
+      _apply('prayer', day, (v) => v.toJson());
       // Persist the raw shape so the countdown survives an offline launch.
       if (day.value != null) {
         payloads['prayerNext'] = day.value!.next(DateTime.now())?.toJson();
@@ -123,7 +122,7 @@ class DashboardController extends ChangeNotifier {
   }
 
   Future<void> refreshFuel() => _guard('fuel', () async {
-        _apply('fuel', await fuel.latest(), FuelPrices.fromJson);
+        _apply('fuel', await fuel.latest(), (v) => v.toJson());
       });
 
   Future<void> refreshFx() => _guard('fx', () async {
@@ -164,13 +163,11 @@ class DashboardController extends ChangeNotifier {
   void _apply<T>(
     String key,
     Fetch<T> f,
-    Map<String, dynamic> Function(Map<String, dynamic>) roundTrip,
+    Map<String, dynamic> Function(T value) toJson,
   ) {
     final v = f.value;
     if (v != null) {
-      final json = roundTrip(
-        (v as dynamic).toJson() as Map<String, dynamic>,
-      );
+      final json = toJson(v);
       payloads[key] = json;
       updatedAt[key] = DateTime.now();
       store.cachePayload(key, json);
