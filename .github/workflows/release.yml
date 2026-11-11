@@ -1,8 +1,11 @@
 name: Release
 
 on:
-  push:
-    tags: ['v*']
+  # Manual only. A tag push must NOT auto-publish: without keystore secrets in
+  # CI the build would be debug-signed, and (before this guard) it silently
+  # replaced a correctly release-signed asset uploaded by tool/release.sh.
+  # Cut releases with tool/release.sh, or run this manually once the secrets
+  # exist.
   workflow_dispatch:
     inputs:
       tag:
@@ -62,10 +65,14 @@ jobs:
           KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           KEY_PW: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
+          # A release MUST be signed with the project key. Debug-signed APKs
+          # cannot upgrade over a release-signed install (and vice versa), so
+          # publishing one silently breaks every existing user. Fail loudly
+          # instead of degrading: sign locally with tool/release.sh instead.
           if [ -z "${KEYSTORE_B64}" ] || [ -z "${KEYSTORE_PW}" ] || [ -z "${KEY_ALIAS}" ] || [ -z "${KEY_PW}" ]; then
-            echo "::warning::Release keystore secrets are not set. Building with DEBUG signing. The APK will install but cannot upgrade over a release-signed install."
-            echo "signed=false" >> "$GITHUB_OUTPUT"
-            exit 0
+            echo "::error::Release keystore secrets are not set. Refusing to publish a debug-signed APK."
+            echo "Add ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS and ANDROID_KEY_PASSWORD, or cut the release locally with tool/release.sh."
+            exit 1
           fi
           echo "${KEYSTORE_B64}" | base64 -d > android/app/release.jks
           cat > android/key.properties <<EOF
@@ -76,6 +83,19 @@ jobs:
           EOF
           chmod 600 android/key.properties android/app/release.jks
           echo "signed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Assert the build is release-signed
+        run: |
+          # Guards against the build silently falling back to debug signing.
+          APKSIGNER=$(ls "$ANDROID_HOME"/build-tools/*/apksigner | tail -1)
+          CERT=$("$APKSIGNER" verify --print-certs build/app/outputs/flutter-apk/app-release.apk | head -1)
+          echo "$CERT"
+          case "$CERT" in
+            *"CN=Android Debug"*)
+              echo "::error::APK is debug-signed. Refusing to publish."
+              exit 1
+              ;;
+          esac
 
       - name: Build universal APK
         run: flutter build apk --release
