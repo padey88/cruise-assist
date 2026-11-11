@@ -33,11 +33,13 @@ How a change becomes an installed update on the phone.
    git push origin main --tags
    ```
 
-4. The `release` workflow runs: analyze, test, build, publish.
+4.   Publish with `./tool/release.sh 0.2.0`, which verifies, builds, signs, tags
+   and uploads. The `release` workflow is manual-only and refuses to run
+   without keystore secrets.
 
 ## What CI does
 
-`.github/workflows/release.yml`, triggered by any `v*` tag:
+`.github/workflows/release.yml`, **manual dispatch only**:
 
 1. Sets up JDK 17 and Flutter stable.
 2. Runs `flutter analyze` (must be clean) and `flutter test`.
@@ -70,10 +72,15 @@ it just cannot upgrade over a release-signed install, and vice versa.
 
 > **Current state:** the PAT in use cannot write Actions secrets (`403` on
 > `repos/…/actions/secrets/public-key`), so the keystore is **not** in CI.
-> `v0.1.0` was therefore built and signed locally with `tool/release.sh`.
-> Until a token with the `secrets` scope is configured, use that script rather
-> than the workflow — otherwise CI would publish debug-signed APKs that cannot
-> upgrade over `v0.1.0`.
+> `v0.1.0` was therefore built and signed locally with `tool/release.sh`, and
+> the release workflow is deliberately no longer tag-triggered.
+>
+> This is not paranoia. On the first `v0.1.0` tag push the workflow ran, found
+> no secrets, silently fell back to debug signing, and overwrote the
+> release-signed assets `tool/release.sh` had just uploaded. The workflow now
+> **fails** when secrets are missing and asserts the built APK is not
+> `CN=Android Debug` before publishing. Do not re-enable tag triggering until
+> the secrets exist.
 
 > **Important:** pick one signing key and keep it forever. Switching keys means
 > every user (you) must uninstall before installing, losing local state.
