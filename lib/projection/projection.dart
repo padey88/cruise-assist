@@ -33,8 +33,9 @@ enum ProjectionState {
 /// Dart facade for the native ProjectionService.
 class ProjectionController extends ChangeNotifier {
   static const _method = MethodChannel('my.kulnem.cruise_assist/projection');
-  static const _events =
-      EventChannel('my.kulnem.cruise_assist/projection_events');
+  static const _events = EventChannel(
+    'my.kulnem.cruise_assist/projection_events',
+  );
 
   ProjectionState _state = ProjectionState.unavailable;
   String? _message;
@@ -45,8 +46,7 @@ class ProjectionController extends ChangeNotifier {
   ProjectionState get state => _state;
   String? get message => _message;
   Map<String, dynamic>? get lastAccessory => _lastAccessory;
-  List<Map<String, dynamic>> get diagnostics =>
-      List.unmodifiable(_diagnostics);
+  List<Map<String, dynamic>> get diagnostics => List.unmodifiable(_diagnostics);
 
   /// Begin listening to native events. Safe to call multiple times.
   void attach() {
@@ -108,9 +108,7 @@ class ProjectionController extends ChangeNotifier {
     if (!_isAndroid) return const [];
     try {
       final result = await _method.invokeMethod<List>('accessories');
-      return result
-              ?.map((e) => (e as Map).cast<String, dynamic>())
-              .toList() ??
+      return result?.map((e) => (e as Map).cast<String, dynamic>()).toList() ??
           const [];
     } on PlatformException {
       return const [];
@@ -122,9 +120,7 @@ class ProjectionController extends ChangeNotifier {
     if (!_isAndroid) return const [];
     try {
       final result = await _method.invokeMethod<List>('diagnostics');
-      return result
-              ?.map((e) => (e as Map).cast<String, dynamic>())
-              .toList() ??
+      return result?.map((e) => (e as Map).cast<String, dynamic>()).toList() ??
           const [];
     } on PlatformException {
       return const [];
@@ -160,16 +156,15 @@ class ProjectionController extends ChangeNotifier {
   }
 
   static ProjectionState _parseState(String name) => switch (name) {
-        'idle' => ProjectionState.idle,
-        'awaitingPermission' => ProjectionState.awaitingPermission,
-        'attached' => ProjectionState.attached,
-        'streaming' => ProjectionState.streaming,
-        'error' => ProjectionState.error,
-        _ => ProjectionState.idle,
-      };
+    'idle' => ProjectionState.idle,
+    'awaitingPermission' => ProjectionState.awaitingPermission,
+    'attached' => ProjectionState.attached,
+    'streaming' => ProjectionState.streaming,
+    'error' => ProjectionState.error,
+    _ => ProjectionState.idle,
+  };
 
-  static bool get _isAndroid =>
-      defaultTargetPlatform == TargetPlatform.android;
+  static bool get _isAndroid => defaultTargetPlatform == TargetPlatform.android;
 
   @override
   void dispose() {

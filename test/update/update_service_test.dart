@@ -7,32 +7,32 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 
 http.Response _json(Object body, {int status = 200}) => http.Response(
-      jsonEncode(body),
-      status,
-      headers: {'content-type': 'application/json'},
-    );
+  jsonEncode(body),
+  status,
+  headers: {'content-type': 'application/json'},
+);
 
 Map<String, dynamic> _release({
   String tag = 'v0.2.0',
   String? body,
   List<Map<String, dynamic>>? assets,
-}) =>
-    {
-      'tag_name': tag,
-      'body': body ?? '## Changes\n- Something new',
-      'published_at': '2026-01-02T03:04:05Z',
-      'assets': assets ??
-          [
-            {
-              'name': 'cruise-assist-universal.apk',
-              'browser_download_url':
-                  'https://github.com/padey88/cruise-assist/releases/download/'
-                      '$tag/cruise-assist-universal.apk',
-              'size': 1234,
-              'digest': 'sha256:abc123',
-            },
-          ],
-    };
+}) => {
+  'tag_name': tag,
+  'body': body ?? '## Changes\n- Something new',
+  'published_at': '2026-01-02T03:04:05Z',
+  'assets':
+      assets ??
+      [
+        {
+          'name': 'cruise-assist-universal.apk',
+          'browser_download_url':
+              'https://github.com/padey88/cruise-assist/releases/download/'
+              '$tag/cruise-assist-universal.apk',
+          'size': 1234,
+          'digest': 'sha256:abc123',
+        },
+      ],
+};
 
 void main() {
   group('ReleaseInfo.fromJson', () {
@@ -54,56 +54,68 @@ void main() {
     });
 
     test('prefers a universal apk over split apks', () {
-      final release = UpdateService.parseRelease(_release(
-        assets: [
-          {
-            'name': 'app-arm64-v8a-release.apk',
-            'browser_download_url': 'https://example.com/arm64.apk',
-            'size': 1,
-          },
-          {
-            'name': 'app-universal-release.apk',
-            'browser_download_url': 'https://example.com/universal.apk',
-            'size': 2,
-          },
-        ],
-      ));
+      final release = UpdateService.parseRelease(
+        _release(
+          assets: [
+            {
+              'name': 'app-arm64-v8a-release.apk',
+              'browser_download_url': 'https://example.com/arm64.apk',
+              'size': 1,
+            },
+            {
+              'name': 'app-universal-release.apk',
+              'browser_download_url': 'https://example.com/universal.apk',
+              'size': 2,
+            },
+          ],
+        ),
+      );
       expect(release.apk!.name, 'app-universal-release.apk');
     });
 
     test('falls back to the only apk when no universal build exists', () {
-      final release = UpdateService.parseRelease(_release(
-        assets: [
-          {
-            'name': 'app-arm64-v8a-release.apk',
-            'browser_download_url': 'https://example.com/arm64.apk',
-            'size': 1,
-          },
-        ],
-      ));
+      final release = UpdateService.parseRelease(
+        _release(
+          assets: [
+            {
+              'name': 'app-arm64-v8a-release.apk',
+              'browser_download_url': 'https://example.com/arm64.apk',
+              'size': 1,
+            },
+          ],
+        ),
+      );
       expect(release.apk!.name, 'app-arm64-v8a-release.apk');
     });
 
     test('has no apk when the release carries no apk', () {
-      final release = UpdateService.parseRelease(_release(assets: [
-        {
-          'name': 'notes.txt',
-          'browser_download_url': 'https://example.com/notes.txt',
-          'size': 1,
-        },
-      ]));
+      final release = UpdateService.parseRelease(
+        _release(
+          assets: [
+            {
+              'name': 'notes.txt',
+              'browser_download_url': 'https://example.com/notes.txt',
+              'size': 1,
+            },
+          ],
+        ),
+      );
       expect(release.apk, isNull);
     });
 
     test('ignores a digest that is not sha256', () {
-      final release = UpdateService.parseRelease(_release(assets: [
-        {
-          'name': 'a.apk',
-          'browser_download_url': 'https://example.com/a.apk',
-          'size': 1,
-          'digest': 'md5:zzz',
-        },
-      ]));
+      final release = UpdateService.parseRelease(
+        _release(
+          assets: [
+            {
+              'name': 'a.apk',
+              'browser_download_url': 'https://example.com/a.apk',
+              'size': 1,
+              'digest': 'md5:zzz',
+            },
+          ],
+        ),
+      );
       expect(release.apk!.sha256, isNull);
     });
 
@@ -127,12 +139,11 @@ void main() {
       Future<http.Response> Function(http.Request request) handler, {
       String installed = '0.1.0',
       String? token,
-    }) =>
-        UpdateService(
-          client: MockClient(handler),
-          installedVersionProvider: () async => AppVersion.parse(installed),
-          token: token,
-        );
+    }) => UpdateService(
+      client: MockClient(handler),
+      installedVersionProvider: () async => AppVersion.parse(installed),
+      token: token,
+    );
 
     Future<http.Response> Function(http.Request) respond(
       http.Response response,
@@ -149,20 +160,14 @@ void main() {
     });
 
     test('reports being up to date', () async {
-      final s = service(
-        respond(_json(_release())),
-        installed: '0.2.0',
-      );
+      final s = service(respond(_json(_release())), installed: '0.2.0');
       final result = await s.checkForUpdates();
       expect(result.ok, isTrue);
       expect(result.value!.updateAvailable, isFalse);
     });
 
     test('reports no update when the installed version is newer', () async {
-      final s = service(
-        respond(_json(_release())),
-        installed: '0.3.0',
-      );
+      final s = service(respond(_json(_release())), installed: '0.3.0');
       final result = await s.checkForUpdates();
       expect(result.ok, isTrue);
       expect(result.value!.updateAvailable, isFalse);
@@ -213,9 +218,7 @@ void main() {
     });
 
     test('degrades gracefully on a 404 from a private repository', () async {
-      final s = service(
-        respond(_json({'message': 'Not Found'}, status: 404)),
-      );
+      final s = service(respond(_json({'message': 'Not Found'}, status: 404)));
       final result = await s.checkForUpdates();
       expect(result.ok, isFalse);
       expect(result.message, UpdateService.unavailableMessage);
@@ -231,9 +234,7 @@ void main() {
     });
 
     test('degrades gracefully on a server error', () async {
-      final s = service(
-        respond(_json({'message': 'boom'}, status: 500)),
-      );
+      final s = service(respond(_json({'message': 'boom'}, status: 500)));
       final result = await s.checkForUpdates();
       expect(result.ok, isFalse);
       expect(result.message, contains('500'));

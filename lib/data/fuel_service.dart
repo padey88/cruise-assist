@@ -11,8 +11,8 @@ class FuelService {
   final DiskCache _cache;
 
   FuelService({ApiClient? client, DiskCache? cache})
-      : _api = client ?? ApiClient(),
-        _cache = cache ?? DiskCache();
+    : _api = client ?? ApiClient(),
+      _cache = cache ?? DiskCache();
 
   Future<Fetch<FuelPrices>> latest() {
     return cachedRead<FuelPrices>(

@@ -157,13 +157,13 @@ class UpdateService {
     String repo = defaultRepo,
     this.token,
     Future<AppVersion> Function()? installedVersionProvider,
-  })  : _releasesUri = Uri.https(
-          'api.github.com',
-          '/repos/$owner/$repo/releases/latest',
-        ),
-        installedVersionProvider = installedVersionProvider ?? _platformVersion,
-        _api = api ?? (client != null ? ApiClient(client: client) : ApiClient()),
-        _ownsApi = api == null;
+  }) : _releasesUri = Uri.https(
+         'api.github.com',
+         '/repos/$owner/$repo/releases/latest',
+       ),
+       installedVersionProvider = installedVersionProvider ?? _platformVersion,
+       _api = api ?? (client != null ? ApiClient(client: client) : ApiClient()),
+       _ownsApi = api == null;
 
   /// Parses a release payload. Exposed for tests and for callers that fetch
   /// the release JSON themselves.
@@ -195,9 +195,7 @@ class UpdateService {
 
       final decoded = jsonDecode(utf8.decode(response.bodyBytes));
       if (decoded is! Map<String, dynamic>) {
-        return Fetch<UpdateCheck>(
-          message: '$unavailableMessage (bad payload)',
-        );
+        return Fetch<UpdateCheck>(message: '$unavailableMessage (bad payload)');
       }
 
       final ReleaseInfo release;

@@ -22,8 +22,9 @@ void main() {
     expect(store.layout, isNotEmpty);
   });
 
-  testWidgets('settings tab is reachable from the navigation bar',
-      (tester) async {
+  testWidgets('settings tab is reachable from the navigation bar', (
+    tester,
+  ) async {
     final store = AppStore();
     await store.load();
     await tester.pumpWidget(CruiseAssistApp(store: store));
@@ -65,16 +66,19 @@ void main() {
     expect(back.showSeconds, true);
   });
 
-  test('a newer stored version falls back to defaults without data loss', () async {
-    SharedPreferences.setMockInitialValues({
-      'store.version': 999,
-      'store.layout': '[{"id":"clock","w":6,"h":3}]',
-    });
-    final store = AppStore();
-    await store.load();
-    // Defaults are used, but the prefs payload is left untouched.
-    expect(store.layout, isEmpty);
-    final prefs = await SharedPreferences.getInstance();
-    expect(prefs.getString('store.layout'), contains('clock'));
-  });
+  test(
+    'a newer stored version falls back to defaults without data loss',
+    () async {
+      SharedPreferences.setMockInitialValues({
+        'store.version': 999,
+        'store.layout': '[{"id":"clock","w":6,"h":3}]',
+      });
+      final store = AppStore();
+      await store.load();
+      // Defaults are used, but the prefs payload is left untouched.
+      expect(store.layout, isEmpty);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString('store.layout'), contains('clock'));
+    },
+  );
 }

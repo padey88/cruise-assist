@@ -11,25 +11,69 @@ class PrayerService {
   final DiskCache _cache;
 
   PrayerService({ApiClient? client, DiskCache? cache})
-      : _api = client ?? ApiClient(),
-        _cache = cache ?? DiskCache();
+    : _api = client ?? ApiClient(),
+      _cache = cache ?? DiskCache();
 
   /// JAKIM zone codes grouped by state/region.
   static const List<String> zones = [
-    'JHR01', 'JHR02', 'JHR03', 'JHR04',
-    'KDH01', 'KDH02', 'KDH03', 'KDH04', 'KDH05', 'KDH06', 'KDH07',
-    'KTN01', 'KTN03',
+    'JHR01',
+    'JHR02',
+    'JHR03',
+    'JHR04',
+    'KDH01',
+    'KDH02',
+    'KDH03',
+    'KDH04',
+    'KDH05',
+    'KDH06',
+    'KDH07',
+    'KTN01',
+    'KTN03',
     'MLK01',
-    'NGS01', 'NGS02',
-    'PHG01', 'PHG02', 'PHG03', 'PHG04', 'PHG05', 'PHG06',
+    'NGS01',
+    'NGS02',
+    'PHG01',
+    'PHG02',
+    'PHG03',
+    'PHG04',
+    'PHG05',
+    'PHG06',
     'PLS01',
     'PNG01',
-    'PRK01', 'PRK02', 'PRK03', 'PRK04', 'PRK05', 'PRK06', 'PRK07',
-    'SBH01', 'SBH02', 'SBH03', 'SBH04', 'SBH05', 'SBH06', 'SBH07', 'SBH08', 'SBH09',
-    'SGR01', 'SGR02', 'SGR03',
-    'SWK01', 'SWK02', 'SWK03', 'SWK04', 'SWK05', 'SWK06', 'SWK07', 'SWK08', 'SWK09',
-    'TRG01', 'TRG02', 'TRG03', 'TRG04',
-    'WLY01', 'WLY02',
+    'PRK01',
+    'PRK02',
+    'PRK03',
+    'PRK04',
+    'PRK05',
+    'PRK06',
+    'PRK07',
+    'SBH01',
+    'SBH02',
+    'SBH03',
+    'SBH04',
+    'SBH05',
+    'SBH06',
+    'SBH07',
+    'SBH08',
+    'SBH09',
+    'SGR01',
+    'SGR02',
+    'SGR03',
+    'SWK01',
+    'SWK02',
+    'SWK03',
+    'SWK04',
+    'SWK05',
+    'SWK06',
+    'SWK07',
+    'SWK08',
+    'SWK09',
+    'TRG01',
+    'TRG02',
+    'TRG03',
+    'TRG04',
+    'WLY01',
+    'WLY02',
   ];
 
   /// Approximate zone for a coordinate (nearest JAKIM zone reference point).
@@ -38,7 +82,9 @@ class PrayerService {
     if (lng >= 115.0) {
       if (lat >= 5.9) return 'SBH05'; // Kota Kinabalu
       if (lat >= 5.3) return lng < 117.0 ? 'SBH09' : 'SBH03'; // Kudat/Sandakan
-      if (lat >= 4.9) return lng < 117.2 ? 'SBH07' : 'SBH03'; // Beaufort/Sandakan
+      if (lat >= 4.9) {
+        return lng < 117.2 ? 'SBH07' : 'SBH03'; // Beaufort/Sandakan
+      }
       if (lat >= 4.4) return lng < 117.4 ? 'SBH06' : 'SBH04'; // Tawau
       return 'SBH01'; // Sipitang / Lawas
     }
@@ -151,7 +197,8 @@ class PrayerService {
       encode: (v) => v.toJson(),
       decode: PrayerDay.fromJson,
       remote: () async {
-        final stamp = '${d.day.toString().padLeft(2, '0')}-'
+        final stamp =
+            '${d.day.toString().padLeft(2, '0')}-'
             '${d.month.toString().padLeft(2, '0')}-${d.year}';
         final uri = Uri.https('api.aladhan.com', '/v1/timings/$stamp', {
           'latitude': lat.toString(),
@@ -176,8 +223,7 @@ class PrayerService {
           final h = int.tryParse(parts[0]);
           final m = int.tryParse(parts[1]);
           if (h == null || m == null) continue;
-          times.add(PrayerTime(
-              name, DateTime(d.year, d.month, d.day, h, m)));
+          times.add(PrayerTime(name, DateTime(d.year, d.month, d.day, h, m)));
         }
         if (times.isEmpty) {
           throw ApiException('Prayer times: could not parse timings');

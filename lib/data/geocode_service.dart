@@ -11,8 +11,8 @@ class GeocodeService {
   final DiskCache _cache;
 
   GeocodeService({ApiClient? client, DiskCache? cache})
-      : _api = client ?? ApiClient(),
-        _cache = cache ?? DiskCache();
+    : _api = client ?? ApiClient(),
+      _cache = cache ?? DiskCache();
 
   Future<Fetch<String>> reverse(double lat, double lng) {
     return cachedRead<String>(
@@ -30,7 +30,8 @@ class GeocodeService {
         });
         final j = ApiClient.asObject(await _api.get(uri), 'Reverse geocode');
         final a = obj(j['address']);
-        final locality = text(a['city']) ??
+        final locality =
+            text(a['city']) ??
             text(a['town']) ??
             text(a['village']) ??
             text(a['municipality']) ??

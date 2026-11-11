@@ -63,14 +63,33 @@ Uint8List buildFeed({
   required double lng,
   required String vehicleId,
 }) {
-  final trip = (Pb()..str(1, tripId)..str(5, routeId)).build();
-  final position = (Pb()..float32(1, lat)..float32(2, lng)).build();
+  final trip =
+      (Pb()
+            ..str(1, tripId)
+            ..str(5, routeId))
+          .build();
+  final position =
+      (Pb()
+            ..float32(1, lat)
+            ..float32(2, lng))
+          .build();
   final vehicleDesc = (Pb()..str(1, vehicleId)).build();
   final vehicle =
-      (Pb()..bytes(1, trip)..bytes(2, position)..bytes(3, vehicleDesc)).build();
-  final entity = (Pb()..str(1, entityId)..bytes(4, vehicle)).build();
+      (Pb()
+            ..bytes(1, trip)
+            ..bytes(2, position)
+            ..bytes(3, vehicleDesc))
+          .build();
+  final entity =
+      (Pb()
+            ..str(1, entityId)
+            ..bytes(4, vehicle))
+          .build();
   final header = (Pb()..str(1, '2.0')).build();
-  return (Pb()..bytes(1, header)..bytes(2, entity)).build();
+  return (Pb()
+        ..bytes(1, header)
+        ..bytes(2, entity))
+      .build();
 }
 
 void main() {
@@ -115,14 +134,17 @@ void main() {
     Uri? seen;
     final client = ApiClient.fake((r) async {
       seen = r.url;
-      return http.Response.bytes(buildFeed(
-        entityId: '0',
-        tripId: 't',
-        routeId: 'R1',
-        lat: 3.0,
-        lng: 101.0,
-        vehicleId: 'v',
-      ), 200);
+      return http.Response.bytes(
+        buildFeed(
+          entityId: '0',
+          tripId: 't',
+          routeId: 'R1',
+          lat: 3.0,
+          lng: 101.0,
+          vehicleId: 'v',
+        ),
+        200,
+      );
     });
     final s = TransitService(client: client);
     await s.vehicles('prasarana');
@@ -151,14 +173,17 @@ void main() {
 
   test('malformed protobuf returns failed', () async {
     final client = ApiClient.fake(
-        (r) async => http.Response.bytes([0xff, 0xff, 0xff, 0xff, 0x0f], 200));
+      (r) async => http.Response.bytes([0xff, 0xff, 0xff, 0xff, 0x0f], 200),
+    );
     final s = TransitService(client: client);
     final r = await s.vehicles('ktmb');
     expect(r.ok, isFalse);
   });
 
   test('empty body yields an empty list', () async {
-    final client = ApiClient.fake((r) async => http.Response.bytes(const [], 200));
+    final client = ApiClient.fake(
+      (r) async => http.Response.bytes(const [], 200),
+    );
     final s = TransitService(client: client);
     final r = await s.vehicles('ktmb');
     expect(r.ok, isTrue);
@@ -186,21 +211,25 @@ void main() {
     expect(r.value, isEmpty);
   });
 
-  test('lat/lng filters vehicles but falls back to all when none match',
-      () async {
-    final body = buildFeed(
-      entityId: '0',
-      tripId: 't',
-      routeId: 'R1',
-      lat: 3.139,
-      lng: 101.6869,
-      vehicleId: 'v',
-    );
-    final client = ApiClient.fake((r) async => http.Response.bytes(body, 200));
-    final s = TransitService(client: client);
-    final near = await s.vehicles('ktmb', lat: 3.14, lng: 101.69);
-    expect(near.value!.length, 1);
-    final far = await s.vehicles('ktmb', lat: 1.5, lng: 110.0);
-    expect(far.value!.length, 1);
-  });
+  test(
+    'lat/lng filters vehicles but falls back to all when none match',
+    () async {
+      final body = buildFeed(
+        entityId: '0',
+        tripId: 't',
+        routeId: 'R1',
+        lat: 3.139,
+        lng: 101.6869,
+        vehicleId: 'v',
+      );
+      final client = ApiClient.fake(
+        (r) async => http.Response.bytes(body, 200),
+      );
+      final s = TransitService(client: client);
+      final near = await s.vehicles('ktmb', lat: 3.14, lng: 101.69);
+      expect(near.value!.length, 1);
+      final far = await s.vehicles('ktmb', lat: 1.5, lng: 110.0);
+      expect(far.value!.length, 1);
+    },
+  );
 }

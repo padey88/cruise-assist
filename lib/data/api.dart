@@ -27,12 +27,13 @@ class ApiClient {
     this.timeout = const Duration(seconds: 15),
     this.userAgent = 'CruiseAssist/0.1 (personal use)',
     Map<String, Duration>? hostSpacing,
-  })  : _inner = client ?? http.Client(),
-        hostSpacing = hostSpacing ??
-            const {
-              'nominatim.openstreetmap.org': Duration(seconds: 1),
-              'overpass-api.de': Duration(seconds: 1),
-            };
+  }) : _inner = client ?? http.Client(),
+       hostSpacing =
+           hostSpacing ??
+           const {
+             'nominatim.openstreetmap.org': Duration(seconds: 1),
+             'overpass-api.de': Duration(seconds: 1),
+           };
 
   /// A client backed by [handler] with politeness spacing disabled.
   ///
@@ -59,14 +60,16 @@ class ApiClient {
     var attempt = 0;
     while (true) {
       try {
-        final res = await _inner.get(
-          uri,
-          headers: {
-            'User-Agent': userAgent,
-            'Accept': 'application/json',
-            ...?headers,
-          },
-        ).timeout(timeout);
+        final res = await _inner
+            .get(
+              uri,
+              headers: {
+                'User-Agent': userAgent,
+                'Accept': 'application/json',
+                ...?headers,
+              },
+            )
+            .timeout(timeout);
         if (res.statusCode >= 500 && attempt < 1) {
           attempt++;
           await Future<void>.delayed(Duration(milliseconds: 400 * attempt));
@@ -82,17 +85,22 @@ class ApiClient {
     }
   }
 
-  Future<http.Response> post(Uri uri,
-      {Map<String, String>? headers, Object? body}) async {
+  Future<http.Response> post(
+    Uri uri, {
+    Map<String, String>? headers,
+    Object? body,
+  }) async {
     await _respectSpacing(uri);
     return _inner
-        .post(uri,
-            headers: {
-              'User-Agent': userAgent,
-              'Accept': 'application/json',
-              ...?headers,
-            },
-            body: body)
+        .post(
+          uri,
+          headers: {
+            'User-Agent': userAgent,
+            'Accept': 'application/json',
+            ...?headers,
+          },
+          body: body,
+        )
         .timeout(timeout);
   }
 
@@ -117,7 +125,9 @@ class ApiClient {
     try {
       final decoded = jsonDecode(utf8.decode(res.bodyBytes));
       if (decoded is List) return decoded;
-      if (decoded is Map && decoded['data'] is List) return decoded['data'] as List;
+      if (decoded is Map && decoded['data'] is List) {
+        return decoded['data'] as List;
+      }
       throw ApiException('$what: unexpected response shape');
     } on FormatException {
       throw ApiException('$what: response was not valid JSON');
@@ -139,7 +149,8 @@ double haversineM(double lat1, double lon1, double lat2, double lon2) {
   const r = 6371000.0;
   final dLat = _rad(lat2 - lat1);
   final dLon = _rad(lon2 - lon1);
-  final a = sin(dLat / 2) * sin(dLat / 2) +
+  final a =
+      sin(dLat / 2) * sin(dLat / 2) +
       cos(_rad(lat1)) * cos(_rad(lat2)) * sin(dLon / 2) * sin(dLon / 2);
   return 2 * r * asin(min(1, sqrt(a)));
 }

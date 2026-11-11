@@ -95,10 +95,11 @@ void main() {
 
     test('serves stale cached value after a failure', () async {
       final good = WeatherService(
-          client: fakeClient(currentPayload), cache: cache());
+        client: fakeClient(currentPayload),
+        cache: cache(),
+      );
       await good.current(3.139, 101.6869);
-      final offline = WeatherService(
-          client: failingClient(), cache: cache());
+      final offline = WeatherService(client: failingClient(), cache: cache());
       final r = await offline.current(3.139, 101.6869);
       expect(r.ok, isFalse);
       expect(r.stale, isTrue);
@@ -142,7 +143,8 @@ void main() {
 
     test('missing pm2.5 leaves it null', () async {
       final s = WeatherService(
-          client: fakeClient('{"current":{"time":"2026-11-10T08:00"}}'));
+        client: fakeClient('{"current":{"time":"2026-11-10T08:00"}}'),
+      );
       final r = await s.air(3.139, 101.6869);
       expect(r.ok, isTrue);
       expect(r.value!.pm25, isNull);

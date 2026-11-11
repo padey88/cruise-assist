@@ -49,7 +49,11 @@ void main() {
 
   test('sends artist and track name parameters', () async {
     final s = LyricsService(client: fakeClient(syncedPayload));
-    await s.find(artist: 'Beyonce', title: 'Halo', duration: const Duration(seconds: 250));
+    await s.find(
+      artist: 'Beyonce',
+      title: 'Halo',
+      duration: const Duration(seconds: 250),
+    );
     expect(true, isTrue);
   });
 
@@ -74,9 +78,8 @@ void main() {
   });
 
   test('search fallback is used when the exact lookup 404s', () async {
-    final client = ApiClientRouter({
-      'lrclib.net': http.Response('[]', 200),
-    }).api;
+    final client = ApiClientRouter({'lrclib.net': http.Response('[]', 200)})
+        .api;
     final s = LyricsService(client: client);
     final r = await s.find(artist: 'Nobody', title: 'Nothing');
     expect(r.ok, isFalse);

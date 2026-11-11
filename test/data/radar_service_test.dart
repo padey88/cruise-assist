@@ -26,15 +26,19 @@ void main() {
     expect(r.value!.host, 'https://tilecache.rainviewer.com');
     expect(r.value!.path, '/v2/radar/1762779000');
     expect(r.value!.at, DateTime.fromMillisecondsSinceEpoch(1762780000 * 1000));
-    expect(r.value!.tileUrl(),
-        'https://tilecache.rainviewer.com/v2/radar/1762779000/256/6/50/32/2/1_1.png');
+    expect(
+      r.value!.tileUrl(),
+      'https://tilecache.rainviewer.com/v2/radar/1762779000/256/6/50/32/2/1_1.png',
+    );
   });
 
   test('tileUrl accepts zoom and tile coordinates', () async {
     final s = RadarService(client: fakeClient(radarPayload));
     final r = await s.latest();
-    expect(r.value!.tileUrl(z: 10, x: 800, y: 600),
-        'https://tilecache.rainviewer.com/v2/radar/1762779000/256/10/800/600/2/1_1.png');
+    expect(
+      r.value!.tileUrl(z: 10, x: 800, y: 600),
+      'https://tilecache.rainviewer.com/v2/radar/1762779000/256/10/800/600/2/1_1.png',
+    );
   });
 
   test('HTTP 500 returns failed', () async {
@@ -59,7 +63,8 @@ void main() {
 
   test('empty radar frames return failed', () async {
     final s = RadarService(
-        client: fakeClient('{"host": "https://x", "radar": {"past": []}}'));
+      client: fakeClient('{"host": "https://x", "radar": {"past": []}}'),
+    );
     final r = await s.latest();
     expect(r.ok, isFalse);
     expect(r.message, contains('no frames'));

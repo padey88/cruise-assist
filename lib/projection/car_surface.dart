@@ -83,9 +83,7 @@ class _CarScreenPageState extends State<CarScreenPage> {
         // Preview label
         Text(
           'Preview',
-          style: Theme.of(context)
-              .textTheme
-              .titleMedium
+          style: Theme.of(context).textTheme.titleMedium
               ?.copyWith(color: CA.dim),
         ),
         const SizedBox(height: 8),
@@ -128,7 +126,10 @@ class _CarScreenPageState extends State<CarScreenPage> {
     final (label, color) = switch (_projection.state) {
       ProjectionState.unavailable => ('Unavailable', Colors.grey),
       ProjectionState.idle => ('Idle', CA.dim),
-      ProjectionState.awaitingPermission => ('Awaiting permission', Colors.amber),
+      ProjectionState.awaitingPermission => (
+        'Awaiting permission',
+        Colors.amber,
+      ),
       ProjectionState.attached => ('Attached', CA.good),
       ProjectionState.streaming => ('Streaming', CA.accent),
       ProjectionState.error => ('Error', CA.danger),
@@ -141,8 +142,10 @@ class _CarScreenPageState extends State<CarScreenPage> {
           decoration: BoxDecoration(shape: BoxShape.circle, color: color),
         ),
         const SizedBox(width: 8),
-        Text(label,
-            style: TextStyle(color: color, fontWeight: FontWeight.w600)),
+        Text(
+          label,
+          style: TextStyle(color: color, fontWeight: FontWeight.w600),
+        ),
         if (_projection.message != null) ...[
           const SizedBox(width: 8),
           Expanded(
@@ -176,22 +179,24 @@ class _CarScreenPageState extends State<CarScreenPage> {
         Icon(icon, size: 18, color: color),
         const SizedBox(width: 8),
         Expanded(
-          child: Text(c.summary,
-              style: TextStyle(color: color, fontSize: 13)),
+          child: Text(c.summary, style: TextStyle(color: color, fontSize: 13)),
         ),
       ],
     );
   }
 
   Widget _buildUsbButton() {
-    final connected = _projection.state == ProjectionState.attached ||
+    final connected =
+        _projection.state == ProjectionState.attached ||
         _projection.state == ProjectionState.streaming;
     return FilledButton.icon(
       onPressed: connected ? _projection.stop : _projection.start,
       icon: Icon(connected ? Icons.usb_off : Icons.usb),
       label: Text(connected ? 'Disconnect' : 'Connect to head unit'),
       style: FilledButton.styleFrom(
-        backgroundColor: connected ? CA.danger.withValues(alpha: 0.2) : CA.accent.withValues(alpha: 0.15),
+        backgroundColor: connected
+            ? CA.danger.withValues(alpha: 0.2)
+            : CA.accent.withValues(alpha: 0.15),
         foregroundColor: connected ? CA.danger : CA.accent,
       ),
     );
@@ -244,13 +249,23 @@ class _CarScreenPageState extends State<CarScreenPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
-              style: const TextStyle(
-                  fontWeight: FontWeight.w600, fontSize: 12, color: CA.accent)),
+          Text(
+            title,
+            style: const TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 12,
+              color: CA.accent,
+            ),
+          ),
           const SizedBox(height: 4),
-          Text(body,
-              style: const TextStyle(
-                  fontFamily: 'monospace', fontSize: 11, color: CA.dim)),
+          Text(
+            body,
+            style: const TextStyle(
+              fontFamily: 'monospace',
+              fontSize: 11,
+              color: CA.dim,
+            ),
+          ),
         ],
       ),
     );
@@ -258,8 +273,15 @@ class _CarScreenPageState extends State<CarScreenPage> {
 
   String _formatAccessory(Map<String, dynamic> a) {
     final lines = <String>[];
-    for (final key in ['manufacturer', 'model', 'description', 'version',
-        'serial', 'uri', 'hasPermission']) {
+    for (final key in [
+      'manufacturer',
+      'model',
+      'description',
+      'version',
+      'serial',
+      'uri',
+      'hasPermission',
+    ]) {
       final v = a[key];
       if (v != null) lines.add('$key: $v');
     }
@@ -361,7 +383,9 @@ class CarSurface extends StatelessWidget {
     if (raw == null || raw is! Map) {
       return _placeholder('Next prayer', scale: scale);
     }
-    final map = (raw is Map<String, dynamic>) ? raw : raw.cast<String, dynamic>();
+    final map = (raw is Map<String, dynamic>)
+        ? raw
+        : raw.cast<String, dynamic>();
     final name = map['name'] as String? ?? '—';
     final atStr = map['at'] as String?;
     String countdown = '';
@@ -403,7 +427,9 @@ class CarSurface extends StatelessWidget {
     if (raw == null || raw is! Map) {
       return _placeholder('Weather', scale: scale);
     }
-    final map = (raw is Map<String, dynamic>) ? raw : raw.cast<String, dynamic>();
+    final map = (raw is Map<String, dynamic>)
+        ? raw
+        : raw.cast<String, dynamic>();
     final temp = map['tempC'];
     final tempStr = temp != null ? '${(temp as num).round()}°' : '—';
     return Text(
@@ -421,10 +447,13 @@ class CarSurface extends StatelessWidget {
     if (raw == null || raw is! Map) {
       return _placeholder('RON 95', scale: scale);
     }
-    final map = (raw is Map<String, dynamic>) ? raw : raw.cast<String, dynamic>();
+    final map = (raw is Map<String, dynamic>)
+        ? raw
+        : raw.cast<String, dynamic>();
     final ron95 = map['ron95'];
-    final priceStr =
-        ron95 != null ? 'RM ${(ron95 as num).toStringAsFixed(2)}' : '—';
+    final priceStr = ron95 != null
+        ? 'RM ${(ron95 as num).toStringAsFixed(2)}'
+        : '—';
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -446,8 +475,7 @@ class CarSurface extends StatelessWidget {
 
   Widget _statusStrip() {
     final alerts = payloads['alerts'];
-    final alertCount =
-        (alerts is List) ? alerts.length : 0;
+    final alertCount = (alerts is List) ? alerts.length : 0;
     final fx = payloads['fx'];
     String usdStr = '—';
     if (fx is List && fx.isNotEmpty) {
@@ -465,7 +493,9 @@ class CarSurface extends StatelessWidget {
         if (alertCount > 0)
           Container(
             padding: EdgeInsets.symmetric(
-                horizontal: 8 * scale, vertical: 2 * scale),
+              horizontal: 8 * scale,
+              vertical: 2 * scale,
+            ),
             decoration: BoxDecoration(
               color: CA.danger.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(4 * scale),
@@ -476,8 +506,10 @@ class CarSurface extends StatelessWidget {
             ),
           ),
         SizedBox(width: 12 * scale),
-        Text(usdStr,
-            style: TextStyle(fontSize: 13 * scale, color: CA.dim)),
+        Text(
+          usdStr,
+          style: TextStyle(fontSize: 13 * scale, color: CA.dim),
+        ),
       ],
     );
   }

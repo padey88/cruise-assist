@@ -44,7 +44,8 @@ class SettingsScreen extends StatelessWidget {
               key: const Key('settings.seconds'),
               title: Text(context.t('settings.seconds')),
               value: s.showSeconds,
-              onChanged: (v) => store.updateSettings(s.copyWith(showSeconds: v)),
+              onChanged: (v) =>
+                  store.updateSettings(s.copyWith(showSeconds: v)),
             ),
             SwitchListTile(
               key: const Key('settings.largeText'),
@@ -56,7 +57,8 @@ class SettingsScreen extends StatelessWidget {
               key: const Key('settings.highContrast'),
               title: Text(context.t('settings.highContrast')),
               value: s.highContrast,
-              onChanged: (v) => store.updateSettings(s.copyWith(highContrast: v)),
+              onChanged: (v) =>
+                  store.updateSettings(s.copyWith(highContrast: v)),
             ),
             ListTile(
               key: const Key('settings.language'),
@@ -89,7 +91,9 @@ class SettingsScreen extends StatelessWidget {
                     ),
                 ],
                 onChanged: (v) {
-                  if (v != null) store.updateSettings(s.copyWith(prayerZone: v));
+                  if (v != null) {
+                    store.updateSettings(s.copyWith(prayerZone: v));
+                  }
                 },
               ),
             ),
@@ -102,7 +106,11 @@ class SettingsScreen extends StatelessWidget {
               padding: const EdgeInsets.only(right: 12),
               child: Text(
                 context.t('settings.dataBody'),
-                style: const TextStyle(color: CA.dim, fontSize: 13, height: 1.4),
+                style: const TextStyle(
+                  color: CA.dim,
+                  fontSize: 13,
+                  height: 1.4,
+                ),
               ),
             ),
           ],
@@ -118,11 +126,16 @@ class _SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.fromLTRB(4, 8, 4, 8),
-        child: Text(title,
-            style: const TextStyle(
-                color: CA.accent, fontSize: 13, fontWeight: FontWeight.w700)),
-      );
+    padding: const EdgeInsets.fromLTRB(4, 8, 4, 8),
+    child: Text(
+      title,
+      style: const TextStyle(
+        color: CA.accent,
+        fontSize: 13,
+        fontWeight: FontWeight.w700,
+      ),
+    ),
+  );
 }
 
 /// City name plus optional coordinates. The fields commit on submit so the
@@ -159,37 +172,50 @@ class _CityFieldState extends State<_CityField> {
 
   void _commit() {
     final s = widget.store.settings;
-    widget.store.updateSettings(s.copyWith(
-      cityName: _city.text.trim().isEmpty ? 'Kuala Lumpur' : _city.text.trim(),
-      lat: double.tryParse(_lat.text.trim()),
-      lng: double.tryParse(_lng.text.trim()),
-    ));
+    widget.store.updateSettings(
+      s.copyWith(
+        cityName: _city.text.trim().isEmpty
+            ? 'Kuala Lumpur'
+            : _city.text.trim(),
+        lat: double.tryParse(_lat.text.trim()),
+        lng: double.tryParse(_lng.text.trim()),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          TextField(
-            key: const Key('settings.cityName'),
-            controller: _city,
-            textInputAction: TextInputAction.next,
-            decoration: InputDecoration(
-              labelText: context.t('settings.city'),
-              border: const OutlineInputBorder(),
-              isDense: true,
-            ),
-            onSubmitted: (_) => _commit(),
+    padding: const EdgeInsets.symmetric(horizontal: 4),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        TextField(
+          key: const Key('settings.cityName'),
+          controller: _city,
+          textInputAction: TextInputAction.next,
+          decoration: InputDecoration(
+            labelText: context.t('settings.city'),
+            border: const OutlineInputBorder(),
+            isDense: true,
           ),
-          const SizedBox(height: 10),
-          Row(children: [
+          onSubmitted: (_) => _commit(),
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
             Expanded(
               child: TextField(
                 key: const Key('settings.lat'),
                 controller: _lat,
-                keyboardType: const TextInputType.numberWithOptions(signed: true, decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  signed: true,
+                  decimal: true,
+                ),
                 decoration: const InputDecoration(
-                    labelText: 'Latitude', border: OutlineInputBorder(), isDense: true),
+                  labelText: 'Latitude',
+                  border: OutlineInputBorder(),
+                  isDense: true,
+                ),
                 onSubmitted: (_) => _commit(),
               ),
             ),
@@ -198,22 +224,30 @@ class _CityFieldState extends State<_CityField> {
               child: TextField(
                 key: const Key('settings.lng'),
                 controller: _lng,
-                keyboardType: const TextInputType.numberWithOptions(signed: true, decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  signed: true,
+                  decimal: true,
+                ),
                 decoration: const InputDecoration(
-                    labelText: 'Longitude', border: OutlineInputBorder(), isDense: true),
+                  labelText: 'Longitude',
+                  border: OutlineInputBorder(),
+                  isDense: true,
+                ),
                 onSubmitted: (_) => _commit(),
               ),
             ),
-          ]),
-          const SizedBox(height: 10),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: FilledButton(
-              key: const Key('settings.saveLocation'),
-              onPressed: _commit,
-              child: Text(context.t('action.save')),
-            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: FilledButton(
+            key: const Key('settings.saveLocation'),
+            onPressed: _commit,
+            child: Text(context.t('action.save')),
           ),
-        ]),
-      );
+        ),
+      ],
+    ),
+  );
 }

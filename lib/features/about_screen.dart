@@ -19,10 +19,16 @@ class AboutScreen extends StatefulWidget {
     ('Open-Meteo — weather & air quality', 'https://open-meteo.com'),
     ('Aladhan / JAKIM — prayer times', 'https://aladhan.com'),
     ('DATA.gov.my — fuel, warnings, transit', 'https://data.gov.my'),
-    ('Bank Negara Malaysia — exchange rates', 'https://apikijangportal.bnm.gov.my'),
+    (
+      'Bank Negara Malaysia — exchange rates',
+      'https://apikijangportal.bnm.gov.my',
+    ),
     ('RainViewer — rain radar', 'https://www.rainviewer.com'),
     ('Open Charge Map — EV charging', 'https://openchargemap.io'),
-    ('OpenStreetMap / Overpass — nearby places', 'https://www.openstreetmap.org'),
+    (
+      'OpenStreetMap / Overpass — nearby places',
+      'https://www.openstreetmap.org',
+    ),
     ('LRCLIB — lyrics', 'https://lrclib.net'),
     ('Radio Browser — radio stations', 'https://www.radio-browser.info'),
     ('ESPN — sports scores', 'https://site.api.espn.com'),
@@ -47,30 +53,40 @@ class _AboutScreenState extends State<AboutScreen> {
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
       children: [
-        Row(children: [
-          Container(
-            width: 56,
-            height: 56,
-            decoration: BoxDecoration(
-              color: CA.accent.withValues(alpha: .12),
-              borderRadius: BorderRadius.circular(16),
+        Row(
+          children: [
+            Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                color: CA.accent.withValues(alpha: .12),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: const Icon(
+                Icons.dashboard_customize_outlined,
+                color: CA.accent,
+                size: 30,
+              ),
             ),
-            child: const Icon(Icons.dashboard_customize_outlined,
-                color: CA.accent, size: 30),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(context.t('app.name'),
-                      style: const TextStyle(
-                          fontSize: 22, fontWeight: FontWeight.w700)),
+                  Text(
+                    context.t('app.name'),
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                   const SizedBox(height: 2),
                   const _VersionLine(),
-                ]),
-          ),
-        ]),
+                ],
+              ),
+            ),
+          ],
+        ),
         const SizedBox(height: 18),
         const Card(
           child: Padding(
@@ -113,70 +129,85 @@ class _AboutScreenState extends State<AboutScreen> {
     final available = check?.value?.updateAvailable ?? false;
 
     if (_checking) {
-      return Row(children: [
-        const SizedBox(
-          width: 16,
-          height: 16,
-          child: CircularProgressIndicator(strokeWidth: 2, color: CA.accent),
-        ),
-        const SizedBox(width: 12),
-        Text(context.t('update.checking'),
-            style: const TextStyle(fontSize: 13, color: CA.dim)),
-      ]);
+      return Row(
+        children: [
+          const SizedBox(
+            width: 16,
+            height: 16,
+            child: CircularProgressIndicator(strokeWidth: 2, color: CA.accent),
+          ),
+          const SizedBox(width: 12),
+          Text(
+            context.t('update.checking'),
+            style: const TextStyle(fontSize: 13, color: CA.dim),
+          ),
+        ],
+      );
     }
 
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Row(children: [
-        OutlinedButton.icon(
-          key: const Key('about.checkUpdates'),
-          onPressed: _checkForUpdates,
-          icon: const Icon(Icons.system_update_alt, size: 18),
-          label: Text(context.t('about.updates')),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            OutlinedButton.icon(
+              key: const Key('about.checkUpdates'),
+              onPressed: _checkForUpdates,
+              icon: const Icon(Icons.system_update_alt, size: 18),
+              label: Text(context.t('about.updates')),
+            ),
+            const SizedBox(width: 10),
+            if (check != null && check.ok && !available)
+              Expanded(
+                child: Text(
+                  context.t('about.upToDate'),
+                  style: const TextStyle(fontSize: 12, color: CA.good),
+                ),
+              ),
+          ],
         ),
-        const SizedBox(width: 10),
-        if (check != null && check.ok && !available)
-          Expanded(
-            child: Text(context.t('about.upToDate'),
-                style: const TextStyle(fontSize: 12, color: CA.good)),
-          ),
-      ]),
-      if (check != null && check.message != null)
-        Padding(
-          padding: const EdgeInsets.only(top: 8),
-          child: Text(check.message!,
-              style: const TextStyle(fontSize: 12, color: CA.dim)),
-        ),
-      if (available && check != null) ...[
-        const SizedBox(height: 10),
-        Text(
-          '${context.t('about.updateAvailable')}: '
-          '${check.value!.latestVersion}',
-          style: const TextStyle(fontSize: 13, color: CA.accent),
-        ),
-        if (_status != null)
-          Padding(
-            padding: const EdgeInsets.only(top: 4),
-            child: Text(_status!,
-                style: const TextStyle(fontSize: 12, color: CA.dim)),
-          ),
-        if (_progress != null)
+        if (check != null && check.message != null)
           Padding(
             padding: const EdgeInsets.only(top: 8),
-            child: LinearProgressIndicator(
-              value: _progress,
-              color: CA.accent,
-              backgroundColor: CA.glass,
+            child: Text(
+              check.message!,
+              style: const TextStyle(fontSize: 12, color: CA.dim),
             ),
           ),
-        const SizedBox(height: 8),
-        FilledButton.icon(
-          key: const Key('about.downloadUpdate'),
-          onPressed: _progress == null ? () => _download(check.value!) : null,
-          icon: const Icon(Icons.download, size: 18),
-          label: Text(context.t('about.download')),
-        ),
+        if (available && check != null) ...[
+          const SizedBox(height: 10),
+          Text(
+            '${context.t('about.updateAvailable')}: '
+            '${check.value!.latestVersion}',
+            style: const TextStyle(fontSize: 13, color: CA.accent),
+          ),
+          if (_status != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                _status!,
+                style: const TextStyle(fontSize: 12, color: CA.dim),
+              ),
+            ),
+          if (_progress != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: LinearProgressIndicator(
+                value: _progress,
+                color: CA.accent,
+                backgroundColor: CA.glass,
+              ),
+            ),
+          const SizedBox(height: 8),
+          FilledButton.icon(
+            key: const Key('about.downloadUpdate'),
+            onPressed: _progress == null ? () => _download(check.value!) : null,
+            icon: const Icon(Icons.download, size: 18),
+            label: Text(context.t('about.download')),
+          ),
+        ],
       ],
-    ]);
+    );
   }
 
   Future<void> _checkForUpdates() async {
@@ -242,9 +273,8 @@ class _AboutScreenState extends State<AboutScreen> {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } on Object {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not open $url')),
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Could not open $url')));
       }
     }
   }
@@ -255,15 +285,18 @@ class _VersionLine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => FutureBuilder<PackageInfo>(
-        future: PackageInfo.fromPlatform(),
-        builder: (context, snapshot) {
-          final info = snapshot.data;
-          final version =
-              info == null ? '—' : '${info.version}+${info.buildNumber}';
-          return Text('${context.t('about.version')} $version',
-              style: const TextStyle(fontSize: 13, color: CA.dim));
-        },
+    future: PackageInfo.fromPlatform(),
+    builder: (context, snapshot) {
+      final info = snapshot.data;
+      final version = info == null
+          ? '—'
+          : '${info.version}+${info.buildNumber}';
+      return Text(
+        '${context.t('about.version')} $version',
+        style: const TextStyle(fontSize: 13, color: CA.dim),
       );
+    },
+  );
 }
 
 class _SectionHeader extends StatelessWidget {
@@ -272,9 +305,14 @@ class _SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.fromLTRB(4, 0, 4, 8),
-        child: Text(title,
-            style: const TextStyle(
-                color: CA.accent, fontSize: 13, fontWeight: FontWeight.w700)),
-      );
+    padding: const EdgeInsets.fromLTRB(4, 0, 4, 8),
+    child: Text(
+      title,
+      style: const TextStyle(
+        color: CA.accent,
+        fontSize: 13,
+        fontWeight: FontWeight.w700,
+      ),
+    ),
+  );
 }

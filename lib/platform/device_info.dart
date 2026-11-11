@@ -56,8 +56,9 @@ class DeviceInfo {
   }
 
   String get displayName {
-    final mfr =
-        manufacturer.isNotEmpty ? '${manufacturer[0].toUpperCase()}${manufacturer.substring(1)}' : '';
+    final mfr = manufacturer.isNotEmpty
+        ? '${manufacturer[0].toUpperCase()}${manufacturer.substring(1)}'
+        : '';
     return '$mfr $model'.trim();
   }
 }

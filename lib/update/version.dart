@@ -10,8 +10,12 @@ class AppVersion implements Comparable<AppVersion> {
   final int patch;
   final List<String> prerelease;
 
-  const AppVersion(this.major, this.minor, this.patch,
-      [this.prerelease = const <String>[]]);
+  const AppVersion(
+    this.major,
+    this.minor,
+    this.patch, [
+    this.prerelease = const <String>[],
+  ]);
 
   static final RegExp _pattern = RegExp(
     r'^[vV]?(0|[1-9]\d*)(?:\.(0|[1-9]\d*))?(?:\.(0|[1-9]\d*))?'
@@ -29,8 +33,10 @@ class AppVersion implements Comparable<AppVersion> {
       if (int.tryParse(identifier) != null &&
           identifier.length > 1 &&
           identifier.startsWith('0')) {
-        throw FormatException('Numeric prerelease identifiers cannot have '
-            'leading zeroes: $input');
+        throw FormatException(
+          'Numeric prerelease identifiers cannot have '
+          'leading zeroes: $input',
+        );
       }
     }
     return AppVersion(
@@ -63,10 +69,9 @@ class AppVersion implements Comparable<AppVersion> {
     }
 
     if (isPrerelease != other.isPrerelease) return isPrerelease ? -1 : 1;
-    final length =
-        prerelease.length < other.prerelease.length
-            ? prerelease.length
-            : other.prerelease.length;
+    final length = prerelease.length < other.prerelease.length
+        ? prerelease.length
+        : other.prerelease.length;
     for (var i = 0; i < length; i++) {
       final left = prerelease[i];
       final right = other.prerelease[i];
@@ -89,15 +94,17 @@ class AppVersion implements Comparable<AppVersion> {
 
   @override
   int get hashCode => Object.hash(
-        major,
-        minor,
-        patch,
-        isPrerelease,
-        Object.hashAll(prerelease.map((id) {
-          final number = int.tryParse(id);
-          return number == null ? id : 'numeric:$number';
-        })),
-      );
+    major,
+    minor,
+    patch,
+    isPrerelease,
+    Object.hashAll(
+      prerelease.map((id) {
+        final number = int.tryParse(id);
+        return number == null ? id : 'numeric:$number';
+      }),
+    ),
+  );
 
   @override
   String toString() {

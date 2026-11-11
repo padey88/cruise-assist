@@ -33,7 +33,8 @@ void main() {
   test('sends an Overpass query for the requested kinds', () async {
     http.Request? seen;
     final s = PoiService(
-        client: fakeClient(overpassPayload, onRequest: (r) => seen = r));
+      client: fakeClient(overpassPayload, onRequest: (r) => seen = r),
+    );
     await s.nearby(3.139, 101.6869, kinds: ['fuel']);
     expect(seen!.url.host, 'overpass-api.de');
     expect(seen!.body, contains('amenity'));
@@ -76,8 +77,9 @@ void main() {
       ''';
       http.Request? seen;
       final s = PoiService(
-          client: fakeClient(payload, onRequest: (r) => seen = r),
-          ocmKey: 'test-key');
+        client: fakeClient(payload, onRequest: (r) => seen = r),
+        ocmKey: 'test-key',
+      );
       final r = await s.evChargers(3.139, 101.6869);
       expect(r.ok, isTrue);
       expect(r.value!.single.name, 'KLCC Charger');

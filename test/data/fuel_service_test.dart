@@ -53,7 +53,8 @@ void main() {
   test('sends Accept: */* and the fuelprice dataset id', () async {
     http.Request? seen;
     final s = FuelService(
-        client: fakeClient(fuelPayload, onRequest: (r) => seen = r));
+      client: fakeClient(fuelPayload, onRequest: (r) => seen = r),
+    );
     await s.latest();
     expect(seen!.headers['Accept'], '*/*');
     expect(seen!.url.queryParameters['id'], 'fuelprice');

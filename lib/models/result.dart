@@ -12,22 +12,13 @@ class Fetch<T> {
 
   const Fetch({this.value, this.at, this.stale = false, this.message});
 
-  const Fetch.idle()
-      : value = null,
-        at = null,
-        stale = false,
-        message = null;
+  const Fetch.idle() : value = null, at = null, stale = false, message = null;
 
   static Fetch<T> success<T>(T value, DateTime at) =>
       Fetch<T>(value: value, at: at);
 
   static Fetch<T> failure<T>(String message, {T? value, DateTime? at}) =>
-      Fetch<T>(
-        value: value,
-        at: at,
-        stale: value != null,
-        message: message,
-      );
+      Fetch<T>(value: value, at: at, stale: value != null, message: message);
 
   bool get ok => message == null;
   bool get hasValue => value != null;
@@ -36,11 +27,11 @@ class Fetch<T> {
       Fetch<T>(value: value, at: at, stale: true, message: message);
 
   Fetch<R> map<R>(R? Function(T) f) => Fetch<R>(
-        value: value == null ? null : f(value as T),
-        at: at,
-        stale: stale,
-        message: message,
-      );
+    value: value == null ? null : f(value as T),
+    at: at,
+    stale: stale,
+    message: message,
+  );
 
   @override
   String toString() =>

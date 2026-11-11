@@ -57,7 +57,8 @@ void main() {
   test('sends the BNM Accept header and session params', () async {
     http.Request? seen;
     final s = FxService(
-        client: fakeClient(bnmPayload, onRequest: (r) => seen = r));
+      client: fakeClient(bnmPayload, onRequest: (r) => seen = r),
+    );
     await s.rates();
     expect(seen!.headers['Accept'], 'application/vnd.BNM.API.v1+json');
     expect(seen!.url.queryParameters['quote'], 'rm');
@@ -68,7 +69,9 @@ void main() {
     final client = ApiClientRouter({
       'api.bnm.gov.my': (http.Response('err', 500)),
       'open.er-api.com': (http.Response(
-          '{"rates": {"USD": 0.25, "SGD": 0.31}}', 200)),
+        '{"rates": {"USD": 0.25, "SGD": 0.31}}',
+        200,
+      )),
     });
     final s = FxService(client: client.api);
     final r = await s.rates();

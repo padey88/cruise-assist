@@ -39,7 +39,8 @@ void main() {
   test('sends the requested league in the path', () async {
     http.Request? seen;
     final s = SportsService(
-        client: fakeClient(espnPayload, onRequest: (r) => seen = r));
+      client: fakeClient(espnPayload, onRequest: (r) => seen = r),
+    );
     await s.scoreboard(league: 'esp.1');
     expect(seen!.url.path, contains('/soccer/esp.1/scoreboard'));
   });

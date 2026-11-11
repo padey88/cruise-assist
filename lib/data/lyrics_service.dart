@@ -14,8 +14,8 @@ class LyricsService {
   final DiskCache _cache;
 
   LyricsService({ApiClient? client, DiskCache? cache})
-      : _api = client ?? ApiClient(),
-        _cache = cache ?? DiskCache();
+    : _api = client ?? ApiClient(),
+      _cache = cache ?? DiskCache();
 
   Future<Fetch<Lyrics>> find({
     required String artist,
@@ -26,7 +26,8 @@ class LyricsService {
     final t = title.trim();
     return cachedRead<Lyrics>(
       cache: _cache,
-      key: 'lyrics.${a.toLowerCase()}.${t.toLowerCase()}.${duration?.inSeconds ?? 0}',
+      key:
+          'lyrics.${a.toLowerCase()}.${t.toLowerCase()}.${duration?.inSeconds ?? 0}',
       ttl: const Duration(days: 30),
       encode: (v) => v.toJson(),
       decode: Lyrics.fromJson,
@@ -56,11 +57,17 @@ class LyricsService {
     );
   }
 
-  Lyrics _parse(Map<String, dynamic> j, {required String artist, required String title}) {
+  Lyrics _parse(
+    Map<String, dynamic> j, {
+    required String artist,
+    required String title,
+  }) {
     final syncedText = text(j['syncedLyrics']);
     final plainText = text(j['plainLyrics']);
     final synced = syncedText != null && _timestamp.hasMatch(syncedText);
-    final lines = synced ? _lrc(syncedText) : _plain(plainText ?? syncedText ?? '');
+    final lines = synced
+        ? _lrc(syncedText)
+        : _plain(plainText ?? syncedText ?? '');
     if (lines.isEmpty) throw ApiException('Lyrics: empty lyrics');
     return Lyrics(
       track: text(j['trackName']) ?? title,
@@ -70,7 +77,9 @@ class LyricsService {
     );
   }
 
-  static final _timestamp = RegExp(r'^\[(\d{1,3}):(\d{1,2})(?:[.:](\d{1,3}))?\]');
+  static final _timestamp = RegExp(
+    r'^\[(\d{1,3}):(\d{1,2})(?:[.:](\d{1,3}))?\]',
+  );
 
   List<LyricsLine> _lrc(String source) {
     final raw = const LineSplitter().convert(source);
@@ -98,10 +107,12 @@ class LyricsService {
         final millis = fraction.length == 2
             ? int.parse(fraction) * 10
             : int.parse(fraction.padRight(3, '0'));
-        out.add(LyricsLine(
-          Duration(minutes: minutes, seconds: seconds, milliseconds: millis),
-          lyric,
-        ));
+        out.add(
+          LyricsLine(
+            Duration(minutes: minutes, seconds: seconds, milliseconds: millis),
+            lyric,
+          ),
+        );
       }
     }
     out.sort((a, b) => a.at.compareTo(b.at));

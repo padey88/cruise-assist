@@ -15,19 +15,23 @@ class DiskCache {
   final Map<String, Map<String, dynamic>> _memory = {};
   Future<Directory>? _dirFuture;
 
-  DiskCache({this.folder = 'cruise_assist_cache', Future<Directory> Function()? directory})
-      : _directoryOverride = directory;
+  DiskCache({
+    this.folder = 'cruise_assist_cache',
+    Future<Directory> Function()? directory,
+  }) : _directoryOverride = directory;
 
   Future<Directory> _dir() {
-    return _dirFuture ??= () async {
-      final base = _directoryOverride != null
-          ? await _directoryOverride()
-          : await getApplicationCacheDirectory();
-      final d = Directory('${base.path}/$folder');
-      if (!await d.exists()) await d.create(recursive: true);
-      return d;
-    }()
-        .catchError((Object _) => Directory.systemTemp.createTempSync('cruise_cache_'));
+    return _dirFuture ??=
+        () async {
+          final base = _directoryOverride != null
+              ? await _directoryOverride()
+              : await getApplicationCacheDirectory();
+          final d = Directory('${base.path}/$folder');
+          if (!await d.exists()) await d.create(recursive: true);
+          return d;
+        }().catchError(
+          (Object _) => Directory.systemTemp.createTempSync('cruise_cache_'),
+        );
   }
 
   File _file(Directory dir, String key) {

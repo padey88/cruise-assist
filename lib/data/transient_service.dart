@@ -19,8 +19,8 @@ class TransitService {
   final DiskCache _cache;
 
   TransitService({ApiClient? client, DiskCache? cache})
-      : _api = client ?? ApiClient(),
-        _cache = cache ?? DiskCache();
+    : _api = client ?? ApiClient(),
+      _cache = cache ?? DiskCache();
 
   /// Known agency paths. `prasarana` needs a category; the value after the
   /// colon overrides it (e.g. `prasarana:rapid-bus-penang`).
@@ -32,25 +32,32 @@ class TransitService {
     'rapid-bus-mrtfeeder': 'prasarana?category=rapid-bus-mrtfeeder',
   };
 
-  Future<Fetch<List<TransitVehicle>>> vehicles(String agency,
-      {double? lat, double? lng}) {
+  Future<Fetch<List<TransitVehicle>>> vehicles(
+    String agency, {
+    double? lat,
+    double? lng,
+  }) {
     final key = 'transit.$agency';
     return cachedRead<List<TransitVehicle>>(
       cache: _cache,
       key: key,
       ttl: const Duration(seconds: 45),
       encode: (v) => {'vehicles': v.map((e) => e.toJson()).toList()},
-      decode: (j) => arr(j['vehicles'])
-          .map((e) => TransitVehicle.fromJson(obj(e)))
-          .toList(growable: false),
+      decode: (j) =>
+          arr(j['vehicles'])
+              .map((e) => TransitVehicle.fromJson(obj(e)))
+              .toList(growable: false),
       remote: () async {
         final path = agencies[agency.toLowerCase()] ?? agency;
         final parts = path.split('?');
         final query = parts.length > 1
             ? Uri.splitQueryString(parts[1])
             : const <String, String>{};
-        final uri = Uri.https('api.data.gov.my',
-            '/gtfs-realtime/vehicle-position/${parts[0]}', query);
+        final uri = Uri.https(
+          'api.data.gov.my',
+          '/gtfs-realtime/vehicle-position/${parts[0]}',
+          query,
+        );
         final res = await _api.get(uri, headers: {'Accept': '*/*'});
         if (res.statusCode != 200) {
           throw ApiException('Transit $agency: HTTP ${res.statusCode}');
@@ -58,8 +65,10 @@ class TransitService {
         final body = res.bodyBytes;
         if (body.isEmpty) return <TransitVehicle>[];
         // A JSON body means the feed changed format; parse defensively.
-        final firstNonSpace = body.firstWhere((b) => b != 0x20 && b != 0x0a && b != 0x0d && b != 0x09,
-            orElse: () => 0);
+        final firstNonSpace = body.firstWhere(
+          (b) => b != 0x20 && b != 0x0a && b != 0x0d && b != 0x09,
+          orElse: () => 0,
+        );
         if (firstNonSpace == 0x7b || firstNonSpace == 0x5b) {
           return _parseJsonFeed(body);
         }
@@ -81,8 +90,8 @@ class TransitService {
     final list = decoded is List
         ? decoded
         : (decoded is Map && decoded['entity'] is List)
-            ? decoded['entity'] as List
-            : const <dynamic>[];
+        ? decoded['entity'] as List
+        : const <dynamic>[];
     final out = <TransitVehicle>[];
     for (final e in list) {
       final j = obj(e);
@@ -91,12 +100,14 @@ class TransitService {
       final lat = dbl(pos['latitude']);
       final lng = dbl(pos['longitude']);
       if (lat == null || lng == null) continue;
-      out.add(TransitVehicle(
-        id: text(v['id']) ?? text(obj(v['trip'])['trip_id']) ?? 'unknown',
-        route: text(obj(v['trip'])['route_id']) ?? '',
-        lat: lat,
-        lng: lng,
-      ));
+      out.add(
+        TransitVehicle(
+          id: text(v['id']) ?? text(obj(v['trip'])['trip_id']) ?? 'unknown',
+          route: text(obj(v['trip'])['route_id']) ?? '',
+          lat: lat,
+          lng: lng,
+        ),
+      );
     }
     return out;
   }
@@ -152,12 +163,14 @@ class TransitService {
               }
             }
             if (lat == null || lng == null) continue;
-            out.add(TransitVehicle(
-              id: id.isEmpty ? tripId : id,
-              route: route,
-              lat: lat,
-              lng: lng,
-            ));
+            out.add(
+              TransitVehicle(
+                id: id.isEmpty ? tripId : id,
+                route: route,
+                lat: lat,
+                lng: lng,
+              ),
+            );
           }
         }
       }

@@ -29,8 +29,9 @@ class CruiseAssistApp extends StatefulWidget {
 }
 
 class _CruiseAssistAppState extends State<CruiseAssistApp> {
-  late final DashboardController _controller =
-      DashboardController(store: widget.store);
+  late final DashboardController _controller = DashboardController(
+    store: widget.store,
+  );
 
   @override
   void initState() {
@@ -68,9 +69,8 @@ class _CruiseAssistAppState extends State<CruiseAssistApp> {
             // and the phone benefits from the same switch.
             final scale = s.largeText ? 1.18 : 1.0;
             return MediaQuery(
-              data: MediaQuery.of(context).copyWith(
-                textScaler: TextScaler.linear(scale),
-              ),
+              data: MediaQuery.of(context)
+                  .copyWith(textScaler: TextScaler.linear(scale)),
               child: child!,
             );
           },
@@ -84,11 +84,7 @@ class _CruiseAssistAppState extends State<CruiseAssistApp> {
 class HomeShell extends StatefulWidget {
   final AppStore store;
   final DashboardController controller;
-  const HomeShell({
-    super.key,
-    required this.store,
-    required this.controller,
-  });
+  const HomeShell({super.key, required this.store, required this.controller});
 
   @override
   State<HomeShell> createState() => _HomeShellState();
@@ -166,22 +162,22 @@ class _HomeShellState extends State<HomeShell> {
   ];
 
   List<NavigationRailDestination> _railDestinations(BuildContext context) => [
-        for (var i = 0; i < _labels.length; i++)
-          NavigationRailDestination(
-            icon: Icon(_icons[i]),
-            selectedIcon: Icon(_iconsSelected[i]),
-            label: Text(context.t(_labels[i])),
-          ),
-      ];
+    for (var i = 0; i < _labels.length; i++)
+      NavigationRailDestination(
+        icon: Icon(_icons[i]),
+        selectedIcon: Icon(_iconsSelected[i]),
+        label: Text(context.t(_labels[i])),
+      ),
+  ];
 
   List<NavigationDestination> _barDestinations(BuildContext context) => [
-        for (var i = 0; i < _labels.length; i++)
-          NavigationDestination(
-            icon: Icon(_icons[i]),
-            selectedIcon: Icon(_iconsSelected[i]),
-            label: context.t(_labels[i]),
-          ),
-      ];
+    for (var i = 0; i < _labels.length; i++)
+      NavigationDestination(
+        icon: Icon(_icons[i]),
+        selectedIcon: Icon(_iconsSelected[i]),
+        label: context.t(_labels[i]),
+      ),
+  ];
 
   Widget _dashboardPage() {
     return ListenableBuilder(
@@ -224,7 +220,9 @@ class _HomeShellState extends State<HomeShell> {
 
   Future<void> _showPicker() async {
     final existing = _store.layout.map((e) => e.id).toSet();
-    final available = allTiles().where((t) => !existing.contains(t.id)).toList();
+    final available = allTiles()
+        .where((t) => !existing.contains(t.id))
+        .toList();
     await showModalBottomSheet<void>(
       context: context,
       backgroundColor: CA.canvasAlt,

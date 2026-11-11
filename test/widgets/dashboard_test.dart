@@ -22,8 +22,11 @@ void main() {
       expect(placements.length, tiles.length);
       for (var i = 0; i < placements.length; i++) {
         for (var j = i + 1; j < placements.length; j++) {
-          expect(placements[i].overlaps(placements[j]), isFalse,
-              reason: 'tile $i overlaps tile $j');
+          expect(
+            placements[i].overlaps(placements[j]),
+            isFalse,
+            reason: 'tile $i overlaps tile $j',
+          );
         }
       }
     });
@@ -48,10 +51,15 @@ void main() {
     });
 
     test('keeps a tile inside the grid width', () {
-      final tiles = [const TilePlacement(id: 'forecast', span: SizeSpan(12, 2))];
+      final tiles = [
+        const TilePlacement(id: 'forecast', span: SizeSpan(12, 2)),
+      ];
       final placements = GridLayout.place(tiles, 8);
       expect(placements.single.columns, 8);
-      expect(placements.single.column + placements.single.columns, lessThanOrEqualTo(8));
+      expect(
+        placements.single.column + placements.single.columns,
+        lessThanOrEqualTo(8),
+      );
     });
 
     test('clamps a tile to its renderer minimum span', () {
@@ -73,8 +81,11 @@ void main() {
 
     test('honours an explicit minimum span map', () {
       final tiles = [const TilePlacement(id: 'notes', span: SizeSpan(1, 1))];
-      final placements = GridLayout.place(tiles, 12,
-          minSpans: const {'notes': SizeSpan(3, 2)});
+      final placements = GridLayout.place(
+        tiles,
+        12,
+        minSpans: const {'notes': SizeSpan(3, 2)},
+      );
       expect(placements.single.columns, 3);
       expect(placements.single.rows, 2);
     });
@@ -97,23 +108,25 @@ void main() {
 
   group('DashboardGrid', () {
     testWidgets('renders tiles without overflow', (tester) async {
-      await tester.pumpWidget(MaterialApp(
-        home: Scaffold(
-          body: SizedBox(
-            width: 1200,
-            height: 800,
-            child: DashboardGrid(
-              tiles: const [
-                TilePlacement(id: 'clock', span: SizeSpan(6, 3)),
-                TilePlacement(id: 'weather', span: SizeSpan(6, 3)),
-                TilePlacement(id: 'fuel', span: SizeSpan(4, 2)),
-              ],
-              surface: Surface.car,
-              payloads: const {},
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SizedBox(
+              width: 1200,
+              height: 800,
+              child: DashboardGrid(
+                tiles: const [
+                  TilePlacement(id: 'clock', span: SizeSpan(6, 3)),
+                  TilePlacement(id: 'weather', span: SizeSpan(6, 3)),
+                  TilePlacement(id: 'fuel', span: SizeSpan(4, 2)),
+                ],
+                surface: Surface.car,
+                payloads: const {},
+              ),
             ),
           ),
         ),
-      ));
+      );
       await tester.pump();
 
       expect(find.text('Clock'), findsOneWidget);
@@ -123,16 +136,18 @@ void main() {
 
     testWidgets('shows the empty state and the add button', (tester) async {
       var added = false;
-      await tester.pumpWidget(MaterialApp(
-        home: Scaffold(
-          body: DashboardGrid(
-            tiles: const [],
-            surface: Surface.phone,
-            payloads: const {},
-            onAdd: () => added = true,
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: DashboardGrid(
+              tiles: const [],
+              surface: Surface.phone,
+              payloads: const {},
+              onAdd: () => added = true,
+            ),
           ),
         ),
-      ));
+      );
       await tester.pump();
 
       expect(find.text('No widgets yet'), findsOneWidget);
@@ -142,20 +157,22 @@ void main() {
 
     testWidgets('reports a tapped tile id', (tester) async {
       String? tapped;
-      await tester.pumpWidget(MaterialApp(
-        home: Scaffold(
-          body: SizedBox(
-            width: 1200,
-            height: 800,
-            child: DashboardGrid(
-              tiles: const [TilePlacement(id: 'clock', span: SizeSpan(6, 3))],
-              surface: Surface.car,
-              payloads: const {},
-              onTileTap: (id) => tapped = id,
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SizedBox(
+              width: 1200,
+              height: 800,
+              child: DashboardGrid(
+                tiles: const [TilePlacement(id: 'clock', span: SizeSpan(6, 3))],
+                surface: Surface.car,
+                payloads: const {},
+                onTileTap: (id) => tapped = id,
+              ),
             ),
           ),
         ),
-      ));
+      );
       await tester.pump();
 
       await tester.tap(find.text('Clock'));
@@ -164,24 +181,26 @@ void main() {
 
     testWidgets('removes a tile in edit mode', (tester) async {
       List<TilePlacement>? result;
-      await tester.pumpWidget(MaterialApp(
-        home: Scaffold(
-          body: SizedBox(
-            width: 1200,
-            height: 800,
-            child: DashboardGrid(
-              tiles: const [
-                TilePlacement(id: 'clock', span: SizeSpan(6, 3)),
-                TilePlacement(id: 'weather', span: SizeSpan(6, 3)),
-              ],
-              surface: Surface.car,
-              payloads: const {},
-              editing: true,
-              onLayoutChanged: (next) => result = next,
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SizedBox(
+              width: 1200,
+              height: 800,
+              child: DashboardGrid(
+                tiles: const [
+                  TilePlacement(id: 'clock', span: SizeSpan(6, 3)),
+                  TilePlacement(id: 'weather', span: SizeSpan(6, 3)),
+                ],
+                surface: Surface.car,
+                payloads: const {},
+                editing: true,
+                onLayoutChanged: (next) => result = next,
+              ),
             ),
           ),
         ),
-      ));
+      );
       await tester.pump();
 
       await tester.tap(find.byIcon(Icons.close).first);
@@ -193,19 +212,23 @@ void main() {
     });
 
     testWidgets('renders unknown tile ids as empty space', (tester) async {
-      await tester.pumpWidget(MaterialApp(
-        home: Scaffold(
-          body: SizedBox(
-            width: 1200,
-            height: 800,
-            child: DashboardGrid(
-              tiles: const [TilePlacement(id: 'does-not-exist', span: SizeSpan(4, 2))],
-              surface: Surface.car,
-              payloads: const {},
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SizedBox(
+              width: 1200,
+              height: 800,
+              child: DashboardGrid(
+                tiles: const [
+                  TilePlacement(id: 'does-not-exist', span: SizeSpan(4, 2)),
+                ],
+                surface: Surface.car,
+                payloads: const {},
+              ),
             ),
           ),
         ),
-      ));
+      );
       await tester.pump();
 
       expect(tester.takeException(), isNull);
@@ -215,10 +238,35 @@ void main() {
   group('registry', () {
     test('exposes every documented widget id', () {
       const expected = [
-        'clock', 'weather', 'forecast', 'air', 'prayer', 'hijri', 'fuel',
-        'fx', 'alerts', 'checklist', 'notes', 'reminder', 'shortcuts', 'speed',
-        'transit', 'nearby', 'ev', 'radar', 'radio', 'music', 'ytm', 'sports',
-        'football', 'calendar', 'qibla', 'asma', 'vela', 'map', 'nav',
+        'clock',
+        'weather',
+        'forecast',
+        'air',
+        'prayer',
+        'hijri',
+        'fuel',
+        'fx',
+        'alerts',
+        'checklist',
+        'notes',
+        'reminder',
+        'shortcuts',
+        'speed',
+        'transit',
+        'nearby',
+        'ev',
+        'radar',
+        'radio',
+        'music',
+        'ytm',
+        'sports',
+        'football',
+        'calendar',
+        'qibla',
+        'asma',
+        'vela',
+        'map',
+        'nav',
       ];
       for (final id in expected) {
         expect(tileById(id), isNotNull, reason: 'missing tile $id');

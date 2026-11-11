@@ -24,34 +24,40 @@ class TileCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        decoration: CA.tile(),
-        clipBehavior: Clip.antiAlias,
-        child: Padding(
-          padding: padding,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              SizedBox(
-                height: 28,
-                child: Row(children: [
-                  Icon(icon, size: 18, color: CA.accent),
-                  const SizedBox(width: 7),
-                  Expanded(
-                    child: Text(title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                            fontSize: 13, fontWeight: FontWeight.w600)),
+    decoration: CA.tile(),
+    clipBehavior: Clip.antiAlias,
+    child: Padding(
+      padding: padding,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(
+            height: 28,
+            child: Row(
+              children: [
+                Icon(icon, size: 18, color: CA.accent),
+                const SizedBox(width: 7),
+                Expanded(
+                  child: Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                  if (trailing != null) ...[trailing!],
-                ]),
-              ),
-              const SizedBox(height: 6),
-              Expanded(child: child),
-            ],
+                ),
+                if (trailing != null) ...[trailing!],
+              ],
+            ),
           ),
-        ),
-      );
+          const SizedBox(height: 6),
+          Expanded(child: child),
+        ],
+      ),
+    ),
+  );
 }
 
 class TileMessage extends StatelessWidget {
@@ -61,30 +67,30 @@ class TileMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => LayoutBuilder(
-        // The tile can be smaller than an icon + three lines of text, so clip
-        // rather than overflow: a short tile must still render a legible hint.
-        builder: (context, constraints) {
-          final compact = constraints.maxHeight < 72;
-          return Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (!compact) ...[
-                  Icon(icon, color: CA.dim, size: 26),
-                  const SizedBox(height: 6),
-                ],
-                Text(
-                  label,
-                  textAlign: TextAlign.center,
-                  maxLines: compact ? 2 : 3,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: CA.dim, fontSize: 12),
-                ),
-              ],
+    // The tile can be smaller than an icon + three lines of text, so clip
+    // rather than overflow: a short tile must still render a legible hint.
+    builder: (context, constraints) {
+      final compact = constraints.maxHeight < 72;
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (!compact) ...[
+              Icon(icon, color: CA.dim, size: 26),
+              const SizedBox(height: 6),
+            ],
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              maxLines: compact ? 2 : 3,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(color: CA.dim, fontSize: 12),
             ),
-          );
-        },
+          ],
+        ),
       );
+    },
+  );
 }
 
 class TileChip extends StatelessWidget {
@@ -95,24 +101,29 @@ class TileChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: .12),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Row(mainAxisSize: MainAxisSize.min, children: [
-          if (icon != null) ...[
-            Icon(icon, size: 14, color: color),
-            const SizedBox(width: 4),
-          ],
-          Flexible(
-            child: Text(text,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: color, fontSize: 12)),
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+    decoration: BoxDecoration(
+      color: color.withValues(alpha: .12),
+      borderRadius: BorderRadius.circular(20),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (icon != null) ...[
+          Icon(icon, size: 14, color: color),
+          const SizedBox(width: 4),
+        ],
+        Flexible(
+          child: Text(
+            text,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(color: color, fontSize: 12),
           ),
-        ]),
-      );
+        ),
+      ],
+    ),
+  );
 }
 
 /// Minimum 48px target, including on the car surface.
@@ -120,17 +131,21 @@ class TileIconButton extends StatelessWidget {
   final IconData icon;
   final String tooltip;
   final VoidCallback onPressed;
-  const TileIconButton(this.icon,
-      {super.key, required this.tooltip, required this.onPressed});
+  const TileIconButton(
+    this.icon, {
+    super.key,
+    required this.tooltip,
+    required this.onPressed,
+  });
 
   @override
   Widget build(BuildContext context) => IconButton(
-        onPressed: onPressed,
-        tooltip: tooltip,
-        icon: Icon(icon, size: 20),
-        constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
-        visualDensity: VisualDensity.compact,
-      );
+    onPressed: onPressed,
+    tooltip: tooltip,
+    icon: Icon(icon, size: 20),
+    constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+    visualDensity: VisualDensity.compact,
+  );
 }
 
 abstract class SimpleTile extends TileRenderer {
@@ -222,7 +237,10 @@ List<Map<String, dynamic>> payloadMaps(TileContext ctx, String key) {
   final raw = ctx.payloads[key];
   final list = raw is Fetch ? raw.value : raw;
   if (list is! List) return const [];
-  return [for (final e in list) if (e is Map) e.cast<String, dynamic>()];
+  return [
+    for (final e in list)
+      if (e is Map) e.cast<String, dynamic>(),
+  ];
 }
 
 Map<String, dynamic> payloadMap(TileContext ctx, String key) {
@@ -257,13 +275,25 @@ String countdown(Duration value) {
   final hours = safe.inHours;
   final minutes = safe.inMinutes.remainder(60);
   final seconds = safe.inSeconds.remainder(60);
-  return hours > 0 ? '$hours h ${two(minutes)} min' : '$minutes min ${two(seconds)} s';
+  return hours > 0
+      ? '$hours h ${two(minutes)} min'
+      : '$minutes min ${two(seconds)} s';
 }
 
 String shortDate(DateTime value) {
   const months = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
   ];
   return '${value.day} ${months[value.month - 1]} ${value.year}';
 }

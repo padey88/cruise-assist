@@ -13,19 +13,20 @@ TileContext ctxWith({
   Map<String, dynamic> payloads = const {},
   Map<String, dynamic> config = const {},
   void Function(Map<String, dynamic>)? onConfigChanged,
-}) =>
-    TileContext(
-      now: fixedNow,
-      surface: Surface.phone,
-      config: config,
-      payloads: payloads,
-      onConfigChanged: onConfigChanged ?? (_) {},
-      onRemove: (_) {},
-    );
+}) => TileContext(
+  now: fixedNow,
+  surface: Surface.phone,
+  config: config,
+  payloads: payloads,
+  onConfigChanged: onConfigChanged ?? (_) {},
+  onRemove: (_) {},
+);
 
 Widget host(Widget child, {Size size = const Size(400, 300)}) => MaterialApp(
-      home: Scaffold(body: SizedBox(width: size.width, height: size.height, child: child)),
-    );
+  home: Scaffold(
+    body: SizedBox(width: size.width, height: size.height, child: child),
+  ),
+);
 
 /// Renders a tile through its renderer so the tile receives a real
 /// [BuildContext].
@@ -43,7 +44,10 @@ void main() {
     });
 
     test('24-hour clock shows 23:59', () {
-      expect(formatClock(DateTime(2026, 11, 10, 23, 59), use24h: true), '23:59');
+      expect(
+        formatClock(DateTime(2026, 11, 10, 23, 59), use24h: true),
+        '23:59',
+      );
     });
 
     test('12-hour clock uses 12 for midnight', () {
@@ -51,17 +55,30 @@ void main() {
     });
 
     test('12-hour clock uses 12 for noon', () {
-      expect(formatClock(DateTime(2026, 11, 10, 12, 0), use24h: false), '12:00');
+      expect(
+        formatClock(DateTime(2026, 11, 10, 12, 0), use24h: false),
+        '12:00',
+      );
     });
 
     test('12-hour clock uses 1 in the afternoon', () {
-      expect(formatClock(DateTime(2026, 11, 10, 13, 45), use24h: false), '1:45');
+      expect(
+        formatClock(DateTime(2026, 11, 10, 13, 45), use24h: false),
+        '1:45',
+      );
     });
 
     test('seconds are appended only when requested', () {
-      expect(formatClock(DateTime(2026, 11, 10, 14, 32, 5), use24h: true), '14:32');
       expect(
-        formatClock(DateTime(2026, 11, 10, 14, 32, 5), use24h: true, seconds: true),
+        formatClock(DateTime(2026, 11, 10, 14, 32, 5), use24h: true),
+        '14:32',
+      );
+      expect(
+        formatClock(
+          DateTime(2026, 11, 10, 14, 32, 5),
+          use24h: true,
+          seconds: true,
+        ),
         '14:32:05',
       );
     });
@@ -80,7 +97,14 @@ void main() {
     });
 
     testWidgets('renders in 12-hour mode', (tester) async {
-      await tester.pumpWidget(host(renderTile(const ClockTile(), ctxWith(config: const {'use24h': false}))));
+      await tester.pumpWidget(
+        host(
+          renderTile(
+            const ClockTile(),
+            ctxWith(config: const {'use24h': false}),
+          ),
+        ),
+      );
       await tester.pump();
       expect(find.textContaining('2:32'), findsOneWidget);
       expect(find.text('PM'), findsOneWidget);
@@ -88,8 +112,9 @@ void main() {
   });
 
   group('weather tile', () {
-    testWidgets('shows a labelled placeholder when the payload is missing',
-        (tester) async {
+    testWidgets('shows a labelled placeholder when the payload is missing', (
+      tester,
+    ) async {
       await tester.pumpWidget(host(renderTile(const WeatherTile(), ctxWith())));
       await tester.pump();
       expect(find.text('Weather unavailable'), findsOneWidget);
@@ -104,8 +129,14 @@ void main() {
         weatherCode: 2,
         observedAt: fixedNow,
       );
-      await tester.pumpWidget(host(
-        renderTile(const WeatherTile(), ctxWith(payloads: {'weather': weather}))));
+      await tester.pumpWidget(
+        host(
+          renderTile(
+            const WeatherTile(),
+            ctxWith(payloads: {'weather': weather}),
+          ),
+        ),
+      );
       await tester.pump();
       expect(find.text('31°C'), findsOneWidget);
       expect(find.textContaining('Feels 34°'), findsOneWidget);
@@ -122,8 +153,11 @@ void main() {
         weatherCode: 0,
         observedAt: fixedNow,
       ).toJson();
-      await tester.pumpWidget(host(
-        renderTile(const WeatherTile(), ctxWith(payloads: {'weather': json}))));
+      await tester.pumpWidget(
+        host(
+          renderTile(const WeatherTile(), ctxWith(payloads: {'weather': json})),
+        ),
+      );
       await tester.pump();
       expect(find.text('27°C'), findsOneWidget);
     });
@@ -131,7 +165,9 @@ void main() {
 
   group('forecast tile', () {
     testWidgets('shows a placeholder without data', (tester) async {
-      await tester.pumpWidget(host(renderTile(const ForecastTile(), ctxWith())));
+      await tester.pumpWidget(
+        host(renderTile(const ForecastTile(), ctxWith())),
+      );
       await tester.pump();
       expect(find.text('Forecast unavailable'), findsOneWidget);
     });
@@ -146,13 +182,15 @@ void main() {
             maxC: 32.0 + i.toDouble(),
           ),
       ];
-      await tester.pumpWidget(host(
-        renderTile(
-          const ForecastTile(),
-          ctxWith(payloads: {'forecast': days}),
+      await tester.pumpWidget(
+        host(
+          renderTile(
+            const ForecastTile(),
+            ctxWith(payloads: {'forecast': days}),
+          ),
+          size: const Size(800, 400),
         ),
-        size: const Size(800, 400),
-      ));
+      );
       await tester.pump();
       expect(find.text('24°'), findsOneWidget);
       expect(find.text('32°'), findsOneWidget);
@@ -167,16 +205,18 @@ void main() {
       expect(find.text('Fuel prices unavailable'), findsOneWidget);
     });
 
-    testWidgets('renders RON95, RON97 and diesel with the effective date',
-        (tester) async {
+    testWidgets('renders RON95, RON97 and diesel with the effective date', (
+      tester,
+    ) async {
       final fuel = FuelPrices(
         ron95: 2.05,
         ron97: 2.15,
         diesel: 1.85,
         effectiveFrom: DateTime(2026, 11, 5),
       );
-      await tester.pumpWidget(host(
-        renderTile(const FuelTile(), ctxWith(payloads: {'fuel': fuel}))));
+      await tester.pumpWidget(
+        host(renderTile(const FuelTile(), ctxWith(payloads: {'fuel': fuel}))),
+      );
       await tester.pump();
       expect(find.text('RM 2.05'), findsOneWidget);
       expect(find.text('RM 2.15'), findsOneWidget);
@@ -204,13 +244,12 @@ void main() {
           PrayerTime('Isha', DateTime(2026, 11, 10, 20, 10)),
         ],
       );
-      await tester.pumpWidget(host(
-        renderTile(
-          const PrayerTile(),
-          ctxWith(payloads: {'prayer': day}),
+      await tester.pumpWidget(
+        host(
+          renderTile(const PrayerTile(), ctxWith(payloads: {'prayer': day})),
+          size: const Size(500, 320),
         ),
-        size: const Size(500, 320),
-      ));
+      );
       await tester.pump();
       // 'Asr' and its time appear twice by design: once in the NEXT header,
       // once in the full schedule list. The countdown is the unique element.
@@ -224,7 +263,9 @@ void main() {
 
   group('checklist tile', () {
     testWidgets('shows an empty state', (tester) async {
-      await tester.pumpWidget(host(renderTile(const ChecklistTile(), ctxWith())));
+      await tester.pumpWidget(
+        host(renderTile(const ChecklistTile(), ctxWith())),
+      );
       await tester.pump();
       expect(find.text('Nothing on the list'), findsOneWidget);
     });
@@ -235,16 +276,18 @@ void main() {
         const ChecklistItem(id: 'a', text: 'Tyres'),
         const ChecklistItem(id: 'b', text: 'Wipers', done: true),
       ];
-      await tester.pumpWidget(host(
-        renderTile(
-          const ChecklistTile(),
-          ctxWith(
-            payloads: {'checklist': items},
-            onConfigChanged: (next) => written = next,
+      await tester.pumpWidget(
+        host(
+          renderTile(
+            const ChecklistTile(),
+            ctxWith(
+              payloads: {'checklist': items},
+              onConfigChanged: (next) => written = next,
+            ),
           ),
+          size: const Size(500, 400),
         ),
-        size: const Size(500, 400),
-      ));
+      );
       await tester.pump();
 
       expect(find.text('Tyres'), findsOneWidget);
@@ -256,7 +299,8 @@ void main() {
 
       expect(written, isNotNull);
       final updated = ChecklistItem.fromJson(
-          (written!['items'] as List).first.cast<String, dynamic>());
+        (written!['items'] as List).first.cast<String, dynamic>(),
+      );
       expect(updated.id, 'a');
       expect(updated.done, isTrue);
       expect(updated.text, 'Tyres');
@@ -265,23 +309,26 @@ void main() {
     testWidgets('a second tap clears the done flag', (tester) async {
       Map<String, dynamic>? written;
       final items = [const ChecklistItem(id: 'a', text: 'Tyres', done: true)];
-      await tester.pumpWidget(host(
-        renderTile(
-          const ChecklistTile(),
-          ctxWith(
-            payloads: {'checklist': items},
-            onConfigChanged: (next) => written = next,
+      await tester.pumpWidget(
+        host(
+          renderTile(
+            const ChecklistTile(),
+            ctxWith(
+              payloads: {'checklist': items},
+              onConfigChanged: (next) => written = next,
+            ),
           ),
+          size: const Size(500, 400),
         ),
-        size: const Size(500, 400),
-      ));
+      );
       await tester.pump();
 
       await tester.tap(find.byKey(const Key('checklist-a')));
       await tester.pump();
 
       final updated = ChecklistItem.fromJson(
-          (written!['items'] as List).first.cast<String, dynamic>());
+        (written!['items'] as List).first.cast<String, dynamic>(),
+      );
       expect(updated.done, isFalse);
     });
   });
@@ -297,8 +344,11 @@ void main() {
       final notes = [
         Note(id: 'n1', text: 'Call workshop', updatedAt: fixedNow),
       ];
-      await tester.pumpWidget(host(
-        renderTile(const NotesTile(), ctxWith(payloads: {'notes': notes}))));
+      await tester.pumpWidget(
+        host(
+          renderTile(const NotesTile(), ctxWith(payloads: {'notes': notes})),
+        ),
+      );
       await tester.pump();
       expect(find.text('Call workshop'), findsOneWidget);
     });
@@ -306,7 +356,9 @@ void main() {
 
   group('shortcuts tile', () {
     testWidgets('shows an empty state', (tester) async {
-      await tester.pumpWidget(host(renderTile(const ShortcutsTile(), ctxWith())));
+      await tester.pumpWidget(
+        host(renderTile(const ShortcutsTile(), ctxWith())),
+      );
       await tester.pump();
       expect(find.text('No shortcuts configured'), findsOneWidget);
     });
@@ -316,8 +368,14 @@ void main() {
         const Shortcut(id: 's1', label: 'Maps', uri: 'geo:0,0'),
         const Shortcut(id: 's2', label: 'Music', package: 'com.spotify.music'),
       ];
-      await tester.pumpWidget(host(
-        renderTile(const ShortcutsTile(), ctxWith(payloads: {'shortcuts': shortcuts}))));
+      await tester.pumpWidget(
+        host(
+          renderTile(
+            const ShortcutsTile(),
+            ctxWith(payloads: {'shortcuts': shortcuts}),
+          ),
+        ),
+      );
       await tester.pump();
       expect(find.text('Maps'), findsOneWidget);
       expect(find.text('Music'), findsOneWidget);

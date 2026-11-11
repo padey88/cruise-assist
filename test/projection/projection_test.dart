@@ -8,14 +8,17 @@ void main() {
 
   group('ProjectionState', () {
     test('enum has all expected values', () {
-      expect(ProjectionState.values, containsAll([
-        ProjectionState.unavailable,
-        ProjectionState.idle,
-        ProjectionState.awaitingPermission,
-        ProjectionState.attached,
-        ProjectionState.streaming,
-        ProjectionState.error,
-      ]));
+      expect(
+        ProjectionState.values,
+        containsAll([
+          ProjectionState.unavailable,
+          ProjectionState.idle,
+          ProjectionState.awaitingPermission,
+          ProjectionState.attached,
+          ProjectionState.streaming,
+          ProjectionState.error,
+        ]),
+      );
       expect(ProjectionState.values.length, 6);
     });
 
@@ -98,10 +101,13 @@ void main() {
       const channel = EventChannel('my.kulnem.cruise_assist/projection_events');
       // Set up a mock handler for the EventChannel
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .setMockStreamHandler(channel, MockStreamHandler.inline(
-        onListen: (args, sink) {},
-        onCancel: (args) {},
-      ));
+          .setMockStreamHandler(
+            channel,
+            MockStreamHandler.inline(
+              onListen: (args, sink) {},
+              onCancel: (args) {},
+            ),
+          );
       final c = ProjectionController();
       c.attach();
       expect(c.state, ProjectionState.idle);

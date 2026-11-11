@@ -32,7 +32,8 @@ void main() {
   test('defaults to a Malaysian country search', () async {
     http.Request? seen;
     final s = RadioService(
-        client: fakeClient(radioPayload, onRequest: (r) => seen = r));
+      client: fakeClient(radioPayload, onRequest: (r) => seen = r),
+    );
     await s.stations();
     expect(seen!.url.queryParameters['country'], 'Malaysia');
     expect(seen!.url.queryParameters['limit'], '30');
@@ -41,7 +42,8 @@ void main() {
   test('uses a name search when a query is given', () async {
     http.Request? seen;
     final s = RadioService(
-        client: fakeClient(radioPayload, onRequest: (r) => seen = r));
+      client: fakeClient(radioPayload, onRequest: (r) => seen = r),
+    );
     await s.stations(query: 'Sinar', limit: 5);
     expect(seen!.url.queryParameters['name'], 'Sinar');
     expect(seen!.url.queryParameters['limit'], '5');

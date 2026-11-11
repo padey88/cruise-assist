@@ -35,8 +35,7 @@ class GridPlacement {
 /// unit-tested directly.
 class GridLayout {
   /// Number of grid columns used on a given surface.
-  static int columnsFor(Surface surface) =>
-      surface == Surface.car ? 12 : 8;
+  static int columnsFor(Surface surface) => surface == Surface.car ? 12 : 8;
 
   /// Computes placements for [tiles] on a [columns]-wide grid.
   ///
@@ -76,7 +75,12 @@ class GridLayout {
       for (var row = 0; candidate == null; row++) {
         for (var column = 0; column + w <= columns; column++) {
           final c = GridPlacement(
-              index: i, column: column, row: row, columns: w, rows: h);
+            index: i,
+            column: column,
+            row: row,
+            columns: w,
+            rows: h,
+          );
           if (occupied.every((o) => !o.overlaps(c))) {
             candidate = c;
             break;
@@ -134,65 +138,78 @@ class DashboardGrid extends StatelessWidget {
     final rows = GridLayout.rowCount(placements);
     if (tiles.isEmpty) {
       return Center(
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          const Icon(Icons.dashboard_customize_outlined,
-              size: 40, color: CA.dim),
-          const SizedBox(height: 10),
-          const Text('No widgets yet',
-              style: TextStyle(color: CA.dim, fontSize: 14)),
-          if (onAdd != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 12),
-              child: FilledButton.icon(
-                onPressed: onAdd,
-                icon: const Icon(Icons.add),
-                label: const Text('Add widget'),
-              ),
-            ),
-        ]),
-      );
-    }
-
-    return LayoutBuilder(builder: (context, constraints) {
-      final cellWidth = (constraints.maxWidth - gap * (columns - 1)) / columns;
-      final cellHeight = cellWidth;
-      return SingleChildScrollView(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            for (var row = 0; row < rows; row++)
+            const Icon(
+              Icons.dashboard_customize_outlined,
+              size: 40,
+              color: CA.dim,
+            ),
+            const SizedBox(height: 10),
+            const Text(
+              'No widgets yet',
+              style: TextStyle(color: CA.dim, fontSize: 14),
+            ),
+            if (onAdd != null)
               Padding(
-                padding: EdgeInsets.only(bottom: row == rows - 1 ? 0 : gap),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    for (final p in placements.where((p) => p.row == row)) ...[
-                      SizedBox(
-                        width: cellWidth * p.columns + gap * (p.columns - 1),
-                        height: cellHeight * p.rows + gap * (p.rows - 1),
-                        child: _TileSlot(
-                          placement: p,
-                          cellWidth: cellWidth,
-                          cellHeight: cellHeight,
-                          columns: columns,
-                          tiles: tiles,
-                          surface: surface,
-                          payloads: payloads,
-                          editing: editing,
-                          onLayoutChanged: onLayoutChanged,
-                          onTileTap: onTileTap,
-                        ),
-                      ),
-                      if (p != placements.where((p) => p.row == row).last)
-                        const SizedBox(width: gap),
-                    ],
-                  ],
+                padding: const EdgeInsets.only(top: 12),
+                child: FilledButton.icon(
+                  onPressed: onAdd,
+                  icon: const Icon(Icons.add),
+                  label: const Text('Add widget'),
                 ),
               ),
           ],
         ),
       );
-    });
+    }
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final cellWidth =
+            (constraints.maxWidth - gap * (columns - 1)) / columns;
+        final cellHeight = cellWidth;
+        return SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (var row = 0; row < rows; row++)
+                Padding(
+                  padding: EdgeInsets.only(bottom: row == rows - 1 ? 0 : gap),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      for (final p in placements.where(
+                        (p) => p.row == row,
+                      )) ...[
+                        SizedBox(
+                          width: cellWidth * p.columns + gap * (p.columns - 1),
+                          height: cellHeight * p.rows + gap * (p.rows - 1),
+                          child: _TileSlot(
+                            placement: p,
+                            cellWidth: cellWidth,
+                            cellHeight: cellHeight,
+                            columns: columns,
+                            tiles: tiles,
+                            surface: surface,
+                            payloads: payloads,
+                            editing: editing,
+                            onLayoutChanged: onLayoutChanged,
+                            onTileTap: onTileTap,
+                          ),
+                        ),
+                        if (p != placements.where((p) => p.row == row).last)
+                          const SizedBox(width: gap),
+                      ],
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }
 
@@ -234,8 +251,7 @@ class _TileSlot extends StatelessWidget {
       payloads: payloads,
       onConfigChanged: (next) {
         onLayoutChanged?.call([
-          for (final t in tiles)
-            t.id == tile.id ? t.copyWith(config: next) : t,
+          for (final t in tiles) t.id == tile.id ? t.copyWith(config: next) : t,
         ]);
       },
       onRemove: (_) {
@@ -249,33 +265,36 @@ class _TileSlot extends StatelessWidget {
     );
 
     if (editing) {
-      child = Stack(children: [
-        Positioned.fill(child: child),
-        Positioned(
-          right: 0,
-          top: 0,
-          child: _RemoveButton(
-            onPressed: () => onLayoutChanged
-                ?.call(tiles.where((t) => t.id != tile.id).toList()),
+      child = Stack(
+        children: [
+          Positioned.fill(child: child),
+          Positioned(
+            right: 0,
+            top: 0,
+            child: _RemoveButton(
+              onPressed: () => onLayoutChanged?.call(
+                tiles.where((t) => t.id != tile.id).toList(),
+              ),
+            ),
           ),
-        ),
-        Positioned(
-          right: 2,
-          bottom: 2,
-          child: _ResizeHandle(
-            onDelta: (dx, dy) {
-              final next = SizeSpan(
-                (tile.span.w + dx).clamp(1, columns),
-                (tile.span.h + dy).clamp(1, 12),
-              );
-              onLayoutChanged?.call([
-                for (final t in tiles)
-                  t.id == tile.id ? t.copyWith(span: next) : t,
-              ]);
-            },
+          Positioned(
+            right: 2,
+            bottom: 2,
+            child: _ResizeHandle(
+              onDelta: (dx, dy) {
+                final next = SizeSpan(
+                  (tile.span.w + dx).clamp(1, columns),
+                  (tile.span.h + dy).clamp(1, 12),
+                );
+                onLayoutChanged?.call([
+                  for (final t in tiles)
+                    t.id == tile.id ? t.copyWith(span: next) : t,
+                ]);
+              },
+            ),
           ),
-        ),
-      ]);
+        ],
+      );
     }
 
     return GestureDetector(
@@ -292,17 +311,17 @@ class _RemoveButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Material(
-        color: Colors.black54,
-        shape: const CircleBorder(),
-        child: InkWell(
-          customBorder: const CircleBorder(),
-          onTap: onPressed,
-          child: const Padding(
-            padding: EdgeInsets.all(6),
-            child: Icon(Icons.close, size: 18, color: CA.ink),
-          ),
-        ),
-      );
+    color: Colors.black54,
+    shape: const CircleBorder(),
+    child: InkWell(
+      customBorder: const CircleBorder(),
+      onTap: onPressed,
+      child: const Padding(
+        padding: EdgeInsets.all(6),
+        child: Icon(Icons.close, size: 18, color: CA.ink),
+      ),
+    ),
+  );
 }
 
 class _ResizeHandle extends StatefulWidget {
@@ -319,24 +338,20 @@ class _ResizeHandleState extends State<_ResizeHandle> {
 
   @override
   Widget build(BuildContext context) => GestureDetector(
-        onPanUpdate: (details) {
-          setState(() {
-            _dx += details.delta.dx > 12
-                ? 1
-                : (details.delta.dx < -12 ? -1 : 0);
-            _dy += details.delta.dy > 12
-                ? 1
-                : (details.delta.dy < -12 ? -1 : 0);
-          });
-          if (_dx != 0 || _dy != 0) {
-            widget.onDelta(_dx, _dy);
-            _dx = 0;
-            _dy = 0;
-          }
-        },
-        child: const Padding(
-          padding: EdgeInsets.all(8),
-          child: Icon(Icons.open_in_full, size: 18, color: CA.accent),
-        ),
-      );
+    onPanUpdate: (details) {
+      setState(() {
+        _dx += details.delta.dx > 12 ? 1 : (details.delta.dx < -12 ? -1 : 0);
+        _dy += details.delta.dy > 12 ? 1 : (details.delta.dy < -12 ? -1 : 0);
+      });
+      if (_dx != 0 || _dy != 0) {
+        widget.onDelta(_dx, _dy);
+        _dx = 0;
+        _dy = 0;
+      }
+    },
+    child: const Padding(
+      padding: EdgeInsets.all(8),
+      child: Icon(Icons.open_in_full, size: 18, color: CA.accent),
+    ),
+  );
 }

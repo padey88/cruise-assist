@@ -11,10 +11,13 @@ class RadioService {
   final DiskCache _cache;
 
   RadioService({ApiClient? client, DiskCache? cache})
-      : _api = client ?? ApiClient(),
-        _cache = cache ?? DiskCache();
+    : _api = client ?? ApiClient(),
+      _cache = cache ?? DiskCache();
 
-  Future<Fetch<List<RadioStation>>> stations({String query = '', int limit = 30}) {
+  Future<Fetch<List<RadioStation>>> stations({
+    String query = '',
+    int limit = 30,
+  }) {
     final q = query.trim();
     final count = limit.clamp(1, 100);
     return cachedRead<List<RadioStation>>(
@@ -22,9 +25,10 @@ class RadioService {
       key: 'radio.${q.toLowerCase()}.$count',
       ttl: const Duration(hours: 12),
       encode: (v) => {'stations': v.map((e) => e.toJson()).toList()},
-      decode: (j) => arr(j['stations'])
-          .map((e) => RadioStation.fromJson(obj(e)))
-          .toList(growable: false),
+      decode: (j) =>
+          arr(j['stations'])
+              .map((e) => RadioStation.fromJson(obj(e)))
+              .toList(growable: false),
       remote: () async {
         final params = <String, String>{
           'country': q.isEmpty ? 'Malaysia' : '',
@@ -34,8 +38,11 @@ class RadioService {
           'order': 'votes',
           'reverse': 'true',
         };
-        final uri = Uri.https('de1.api.radio-browser.info',
-            '/json/stations/search', params);
+        final uri = Uri.https(
+          'de1.api.radio-browser.info',
+          '/json/stations/search',
+          params,
+        );
         final rows = ApiClient.asList(await _api.get(uri), 'Radio stations');
         final seen = <String>{};
         final out = <RadioStation>[];
@@ -44,12 +51,14 @@ class RadioService {
           final url = text(r['url_resolved']) ?? text(r['url']);
           final name = text(r['name']);
           if (url == null || name == null || !seen.add(url)) continue;
-          out.add(RadioStation(
-            id: text(r['stationuuid']) ?? url,
-            name: name,
-            url: url,
-            favicon: text(r['favicon']),
-          ));
+          out.add(
+            RadioStation(
+              id: text(r['stationuuid']) ?? url,
+              name: name,
+              url: url,
+              favicon: text(r['favicon']),
+            ),
+          );
         }
         return out;
       },

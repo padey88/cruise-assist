@@ -25,12 +25,16 @@ const nominatimPayload = '''
 /// folder is shared per-process, so an earlier test's payload for the same
 /// coordinates was being served to a later one, which then never exercised its
 /// own fixture.
-DiskCache isolatedCache() =>
-    DiskCache(directory: () async => Directory.systemTemp.createTempSync('geocode_t_'));
+DiskCache isolatedCache() => DiskCache(
+  directory: () async => Directory.systemTemp.createTempSync('geocode_t_'),
+);
 
 void main() {
   test('parses the place name from the address block', () async {
-    final s = GeocodeService(cache: isolatedCache(), client: fakeClient(nominatimPayload));
+    final s = GeocodeService(
+      cache: isolatedCache(),
+      client: fakeClient(nominatimPayload),
+    );
     final r = await s.reverse(3.139, 101.6869);
     expect(r.ok, isTrue);
     expect(r.value, 'Kuala Lumpur, Federal Territory of Kuala Lumpur');
@@ -39,8 +43,9 @@ void main() {
   test('sends a real User-Agent and jsonv2 format', () async {
     http.Request? seen;
     final s = GeocodeService(
-        cache: isolatedCache(),
-        client: fakeClient(nominatimPayload, onRequest: (r) => seen = r));
+      cache: isolatedCache(),
+      client: fakeClient(nominatimPayload, onRequest: (r) => seen = r),
+    );
     await s.reverse(3.139, 101.6869);
     expect(seen!.headers['User-Agent'], isNotEmpty);
     expect(seen!.headers['User-Agent'], contains('CruiseAssist'));
@@ -48,7 +53,10 @@ void main() {
   });
 
   test('HTTP 500 returns failed', () async {
-    final s = GeocodeService(cache: isolatedCache(), client: fakeClient('err', status: 500));
+    final s = GeocodeService(
+      cache: isolatedCache(),
+      client: fakeClient('err', status: 500),
+    );
     final r = await s.reverse(3.139, 101.6869);
     expect(r.ok, isFalse);
     expect(r.message, contains('500'));
@@ -62,7 +70,10 @@ void main() {
 
   test('empty address falls back to display_name', () async {
     const payload = '{"display_name": "Somewhere, Malaysia"}';
-    final s = GeocodeService(cache: isolatedCache(), client: fakeClient(payload));
+    final s = GeocodeService(
+      cache: isolatedCache(),
+      client: fakeClient(payload),
+    );
     final r = await s.reverse(3.139, 101.6869);
     expect(r.ok, isTrue);
     expect(r.value, contains('Somewhere'));

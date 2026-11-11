@@ -44,8 +44,14 @@ void main() {
     final r = await s.day(zone: 'WLY01', date: DateTime(2026, 11, 10));
     expect(r.ok, isTrue);
     final times = r.value!.times;
-    expect(times.map((t) => t.name).toList(),
-        ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha']);
+    expect(times.map((t) => t.name).toList(), [
+      'Fajr',
+      'Sunrise',
+      'Dhuhr',
+      'Asr',
+      'Maghrib',
+      'Isha',
+    ]);
     expect(times.first.at, DateTime(2026, 11, 10, 5, 37));
     expect(times.last.at, DateTime(2026, 11, 10, 20, 9));
     expect(r.value!.zone, 'WLY01');
@@ -54,7 +60,8 @@ void main() {
   test('requests method=17 and the DD-MM-YYYY date path', () async {
     http.Request? seen;
     final s = PrayerService(
-        client: fakeClient(timingsPayload, onRequest: (r) => seen = r));
+      client: fakeClient(timingsPayload, onRequest: (r) => seen = r),
+    );
     await s.day(zone: 'SGR01', date: DateTime(2026, 11, 10));
     expect(seen!.url.path, contains('/v1/timings/10-11-2026'));
     expect(seen!.url.queryParameters['method'], '17');
@@ -75,7 +82,8 @@ void main() {
 
   test('empty timings object returns failed', () async {
     final s = PrayerService(
-        client: fakeClient('{"code":200,"data":{"timings":{}}}'));
+      client: fakeClient('{"code":200,"data":{"timings":{}}}'),
+    );
     final r = await s.day(zone: 'WLY01', date: DateTime(2026, 11, 10));
     expect(r.ok, isFalse);
     expect(r.message, contains('empty timings'));
@@ -83,14 +91,17 @@ void main() {
 
   test('non-200 API code returns failed', () async {
     final s = PrayerService(
-        client: fakeClient('{"code":400,"status":"Bad Request"}'));
+      client: fakeClient('{"code":400,"status":"Bad Request"}'),
+    );
     final r = await s.day(zone: 'WLY01', date: DateTime(2026, 11, 10));
     expect(r.ok, isFalse);
   });
 
   test('serves stale cached value after a failure', () async {
     final good = PrayerService(
-        client: fakeClient(timingsPayload), cache: cache());
+      client: fakeClient(timingsPayload),
+      cache: cache(),
+    );
     await good.day(zone: 'WLY01', date: DateTime(2026, 11, 10));
     final offline = PrayerService(client: failingClient(), cache: cache());
     final r = await offline.day(zone: 'WLY01', date: DateTime(2026, 11, 10));

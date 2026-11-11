@@ -27,17 +27,17 @@ class TilePlacement {
       );
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'w': span.w,
-        'h': span.h,
-        'config': config,
-      };
+    'id': id,
+    'w': span.w,
+    'h': span.h,
+    'config': config,
+  };
 
   factory TilePlacement.fromJson(Map<String, dynamic> j) => TilePlacement(
-        id: j['id'] as String,
-        span: SizeSpan((j['w'] as num).toInt(), (j['h'] as num).toInt()),
-        config: (j['config'] as Map?)?.cast<String, dynamic>() ?? const {},
-      );
+    id: j['id'] as String,
+    span: SizeSpan((j['w'] as num).toInt(), (j['h'] as num).toInt()),
+    config: (j['config'] as Map?)?.cast<String, dynamic>() ?? const {},
+  );
 }
 
 /// App-wide persisted settings.
@@ -81,48 +81,47 @@ class AppSettings {
     bool? highContrast,
     bool? carMode,
     bool? showSeconds,
-  }) =>
-      AppSettings(
-        use24h: use24h ?? this.use24h,
-        largeText: largeText ?? this.largeText,
-        language: language ?? this.language,
-        prayerZone: prayerZone ?? this.prayerZone,
-        lat: lat ?? this.lat,
-        lng: lng ?? this.lng,
-        cityName: cityName ?? this.cityName,
-        weatherMode: weatherMode ?? this.weatherMode,
-        highContrast: highContrast ?? this.highContrast,
-        carMode: carMode ?? this.carMode,
-        showSeconds: showSeconds ?? this.showSeconds,
-      );
+  }) => AppSettings(
+    use24h: use24h ?? this.use24h,
+    largeText: largeText ?? this.largeText,
+    language: language ?? this.language,
+    prayerZone: prayerZone ?? this.prayerZone,
+    lat: lat ?? this.lat,
+    lng: lng ?? this.lng,
+    cityName: cityName ?? this.cityName,
+    weatherMode: weatherMode ?? this.weatherMode,
+    highContrast: highContrast ?? this.highContrast,
+    carMode: carMode ?? this.carMode,
+    showSeconds: showSeconds ?? this.showSeconds,
+  );
 
   Map<String, dynamic> toJson() => {
-        'use24h': use24h,
-        'largeText': largeText,
-        'language': language,
-        'prayerZone': prayerZone,
-        'lat': lat,
-        'lng': lng,
-        'cityName': cityName,
-        'weatherMode': weatherMode,
-        'highContrast': highContrast,
-        'carMode': carMode,
-        'showSeconds': showSeconds,
-      };
+    'use24h': use24h,
+    'largeText': largeText,
+    'language': language,
+    'prayerZone': prayerZone,
+    'lat': lat,
+    'lng': lng,
+    'cityName': cityName,
+    'weatherMode': weatherMode,
+    'highContrast': highContrast,
+    'carMode': carMode,
+    'showSeconds': showSeconds,
+  };
 
   factory AppSettings.fromJson(Map<String, dynamic> j) => AppSettings(
-        use24h: j['use24h'] as bool? ?? true,
-        largeText: j['largeText'] as bool? ?? false,
-        language: j['language'] as String? ?? 'en',
-        prayerZone: j['prayerZone'] as String? ?? 'WLY01',
-        lat: (j['lat'] as num?)?.toDouble(),
-        lng: (j['lng'] as num?)?.toDouble(),
-        cityName: j['cityName'] as String? ?? 'Kuala Lumpur',
-        weatherMode: j['weatherMode'] as String? ?? 'auto',
-        highContrast: j['highContrast'] as bool? ?? false,
-        carMode: j['carMode'] as bool? ?? false,
-        showSeconds: j['showSeconds'] as bool? ?? false,
-      );
+    use24h: j['use24h'] as bool? ?? true,
+    largeText: j['largeText'] as bool? ?? false,
+    language: j['language'] as String? ?? 'en',
+    prayerZone: j['prayerZone'] as String? ?? 'WLY01',
+    lat: (j['lat'] as num?)?.toDouble(),
+    lng: (j['lng'] as num?)?.toDouble(),
+    cityName: j['cityName'] as String? ?? 'Kuala Lumpur',
+    weatherMode: j['weatherMode'] as String? ?? 'auto',
+    highContrast: j['highContrast'] as bool? ?? false,
+    carMode: j['carMode'] as bool? ?? false,
+    showSeconds: j['showSeconds'] as bool? ?? false,
+  );
 }
 
 /// Versioned persistent state. A version bump must include a migration; an
@@ -203,10 +202,7 @@ class AppStore extends ChangeNotifier {
     try {
       final l = jsonDecode(raw);
       if (l is! List) return const [];
-      return l
-          .whereType<Map<String, dynamic>>()
-          .map(f)
-          .toList(growable: false);
+      return l.whereType<Map<String, dynamic>>().map(f).toList(growable: false);
     } on FormatException {
       return const [];
     }
@@ -227,14 +223,14 @@ class AppStore extends ChangeNotifier {
       _prefs.setString(key, jsonEncode(value));
 
   static List<TilePlacement> get defaultLayout => const [
-        TilePlacement(id: 'clock', span: SizeSpan(6, 3)),
-        TilePlacement(id: 'weather', span: SizeSpan(6, 3)),
-        TilePlacement(id: 'prayer', span: SizeSpan(4, 3)),
-        TilePlacement(id: 'fuel', span: SizeSpan(4, 2)),
-        TilePlacement(id: 'forecast', span: SizeSpan(8, 2)),
-        TilePlacement(id: 'checklist', span: SizeSpan(4, 3)),
-        TilePlacement(id: 'shortcuts', span: SizeSpan(4, 2)),
-      ];
+    TilePlacement(id: 'clock', span: SizeSpan(6, 3)),
+    TilePlacement(id: 'weather', span: SizeSpan(6, 3)),
+    TilePlacement(id: 'prayer', span: SizeSpan(4, 3)),
+    TilePlacement(id: 'fuel', span: SizeSpan(4, 2)),
+    TilePlacement(id: 'forecast', span: SizeSpan(8, 2)),
+    TilePlacement(id: 'checklist', span: SizeSpan(4, 3)),
+    TilePlacement(id: 'shortcuts', span: SizeSpan(4, 2)),
+  ];
 
   // ---- mutations -------------------------------------------------------
 
@@ -269,10 +265,16 @@ class AppStore extends ChangeNotifier {
     await setLayout(layout.where((t) => t.id != id).toList());
   }
 
-  Future<void> addTile(String id, SizeSpan span,
-      {Map<String, dynamic> config = const {}}) async {
+  Future<void> addTile(
+    String id,
+    SizeSpan span, {
+    Map<String, dynamic> config = const {},
+  }) async {
     if (layout.any((t) => t.id == id)) return;
-    await setLayout([...layout, TilePlacement(id: id, span: span, config: config)]);
+    await setLayout([
+      ...layout,
+      TilePlacement(id: id, span: span, config: config),
+    ]);
   }
 
   Future<void> updateTileConfig(String id, Map<String, dynamic> config) async {

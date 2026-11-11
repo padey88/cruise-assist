@@ -202,8 +202,7 @@ class L {
 
   /// Missing keys fall back to the English string, then to the key itself, so
   /// a typo degrades visibly instead of rendering an empty box.
-  String t(String key) =>
-      _strings[_k]?[key] ?? _strings['en']?[key] ?? key;
+  String t(String key) => _strings[_k]?[key] ?? _strings['en']?[key] ?? key;
 
   static L ofCode(String code) => code == 'ms' ? ms : en;
 }
@@ -211,7 +210,8 @@ class L {
 class LDelegate extends LocalizationsDelegate<L> {
   const LDelegate();
   @override
-  bool isSupported(Locale locale) => const ['en', 'ms'].contains(locale.languageCode);
+  bool isSupported(Locale locale) =>
+      const ['en', 'ms'].contains(locale.languageCode);
   @override
   Future<L> load(Locale locale) async => L.ofCode(locale.languageCode);
   @override

@@ -37,15 +37,13 @@ class CA {
           side: const BorderSide(color: edge),
         ),
       ),
-      textTheme: base.textTheme.apply(
-        bodyColor: ink,
-        displayColor: ink,
-      ),
+      textTheme: base.textTheme.apply(bodyColor: ink, displayColor: ink),
     );
   }
 
   /// Glassy tile decoration used by every widget.
-  static BoxDecoration tile({double radius = 18, Color? outline}) => BoxDecoration(
+  static BoxDecoration tile({double radius = 18, Color? outline}) =>
+      BoxDecoration(
         borderRadius: BorderRadius.circular(radius),
         gradient: const LinearGradient(
           begin: Alignment.topLeft,

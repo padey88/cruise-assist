@@ -31,11 +31,11 @@ class DashboardController extends ChangeNotifier {
     FuelService? fuel,
     FxService? fx,
     AlertsService? alerts,
-  })  : weather = weather ?? WeatherService(),
-        prayer = prayer ?? PrayerService(),
-        fuel = fuel ?? FuelService(),
-        fx = fx ?? FxService(),
-        alerts = alerts ?? AlertsService();
+  }) : weather = weather ?? WeatherService(),
+       prayer = prayer ?? PrayerService(),
+       fuel = fuel ?? FuelService(),
+       fx = fx ?? FxService(),
+       alerts = alerts ?? AlertsService();
 
   final Map<String, dynamic> payloads = {};
   final Map<String, String> errors = {};
@@ -78,10 +78,7 @@ class DashboardController extends ChangeNotifier {
   }
 
   Future<void> refreshAll() async {
-    await Future.wait([
-      refreshWeather(),
-      refreshPrayer(),
-    ]);
+    await Future.wait([refreshWeather(), refreshPrayer()]);
     await refreshSlow();
   }
 
@@ -122,29 +119,29 @@ class DashboardController extends ChangeNotifier {
   }
 
   Future<void> refreshFuel() => _guard('fuel', () async {
-        _apply('fuel', await fuel.latest(), (v) => v.toJson());
-      });
+    _apply('fuel', await fuel.latest(), (v) => v.toJson());
+  });
 
   Future<void> refreshFx() => _guard('fx', () async {
-        final r = await fx.rates();
-        if (r.value != null) {
-          payloads['fx'] = r.value!.map((e) => e.toJson()).toList();
-          updatedAt['fx'] = DateTime.now();
-        }
-        _note('fx', r.message);
-      });
+    final r = await fx.rates();
+    if (r.value != null) {
+      payloads['fx'] = r.value!.map((e) => e.toJson()).toList();
+      updatedAt['fx'] = DateTime.now();
+    }
+    _note('fx', r.message);
+  });
 
   Future<void> refreshAlerts() => _guard('alerts', () async {
-        final a = await alerts.active(
-          lat: store.settings.lat,
-          lng: store.settings.lng,
-        );
-        if (a.value != null) {
-          payloads['alerts'] = a.value!.map((e) => e.toJson()).toList();
-          updatedAt['alerts'] = DateTime.now();
-        }
-        _note('alerts', a.message);
-      });
+    final a = await alerts.active(
+      lat: store.settings.lat,
+      lng: store.settings.lng,
+    );
+    if (a.value != null) {
+      payloads['alerts'] = a.value!.map((e) => e.toJson()).toList();
+      updatedAt['alerts'] = DateTime.now();
+    }
+    _note('alerts', a.message);
+  });
 
   /// Runs [work] with a single-flight guard and converts any escaped exception
   /// into a visible error string rather than an unhandled zone error.

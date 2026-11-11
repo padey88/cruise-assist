@@ -15,12 +15,11 @@ http.StreamedResponse _stream(
   List<int> bytes, {
   int status = 200,
   int? contentLength,
-}) =>
-    http.StreamedResponse(
-      Stream<List<int>>.fromIterable([bytes]),
-      status,
-      contentLength: contentLength ?? bytes.length,
-    );
+}) => http.StreamedResponse(
+  Stream<List<int>>.fromIterable([bytes]),
+  status,
+  contentLength: contentLength ?? bytes.length,
+);
 
 void main() {
   late Directory cache;
@@ -38,21 +37,24 @@ void main() {
     String? url,
     int size = 0,
     String? sha256,
-  }) =>
-      ReleaseAsset(
-        name: name,
-        downloadUrl: Uri.parse(url ??
-            'https://github.com/padey88/cruise-assist/releases/download/'
-                'v0.2.0/$name'),
-        size: size,
-        sha256: sha256,
-      );
+  }) => ReleaseAsset(
+    name: name,
+    downloadUrl: Uri.parse(
+      url ??
+          'https://github.com/padey88/cruise-assist/releases/download/'
+              'v0.2.0/$name',
+    ),
+    size: size,
+    sha256: sha256,
+  );
 
   group('UpdateDownloader.downloadToCache', () {
     test('streams the apk into the cache directory', () async {
       final bytes = List<int>.generate(2048, (i) => i % 256);
       final downloader = UpdateDownloader(
-        client: MockClient.streaming((request, bodyStream) async => _stream(bytes)),
+        client: MockClient.streaming(
+          (request, bodyStream) async => _stream(bytes),
+        ),
         cacheDirectory: () async => cache,
       );
       final result = await downloader.downloadToCache(
@@ -70,7 +72,9 @@ void main() {
       final bytes = List<int>.generate(1024, (i) => i % 256);
       final progress = <DownloadProgress>[];
       final downloader = UpdateDownloader(
-        client: MockClient.streaming((request, bodyStream) async => _stream(bytes)),
+        client: MockClient.streaming(
+          (request, bodyStream) async => _stream(bytes),
+        ),
         cacheDirectory: () async => cache,
       );
       await downloader.downloadToCache(
@@ -93,10 +97,7 @@ void main() {
         }),
         cacheDirectory: () async => cache,
       );
-      final result = await downloader.downloadToCache(
-        asset(),
-        isMetered: true,
-      );
+      final result = await downloader.downloadToCache(asset(), isMetered: true);
       expect(result.ok, isFalse);
       expect(result.message, contains('metered'));
       expect(requested, isFalse);
@@ -105,7 +106,9 @@ void main() {
     test('allows a metered download when the caller opts in', () async {
       final bytes = List<int>.generate(16, (i) => i);
       final downloader = UpdateDownloader(
-        client: MockClient.streaming((request, bodyStream) async => _stream(bytes)),
+        client: MockClient.streaming(
+          (request, bodyStream) async => _stream(bytes),
+        ),
         cacheDirectory: () async => cache,
       );
       final result = await downloader.downloadToCache(
@@ -136,7 +139,9 @@ void main() {
     test('fails when the sha-256 digest does not match', () async {
       final bytes = List<int>.filled(32, 7);
       final downloader = UpdateDownloader(
-        client: MockClient.streaming((request, bodyStream) async => _stream(bytes)),
+        client: MockClient.streaming(
+          (request, bodyStream) async => _stream(bytes),
+        ),
         cacheDirectory: () async => cache,
       );
       final result = await downloader.downloadToCache(
@@ -150,7 +155,9 @@ void main() {
     test('accepts a matching sha-256 digest', () async {
       final bytes = List<int>.filled(32, 3);
       final downloader = UpdateDownloader(
-        client: MockClient.streaming((request, bodyStream) async => _stream(bytes)),
+        client: MockClient.streaming(
+          (request, bodyStream) async => _stream(bytes),
+        ),
         cacheDirectory: () async => cache,
       );
       final result = await downloader.downloadToCache(
@@ -163,10 +170,15 @@ void main() {
 
     test('fails on a non-200 response', () async {
       final downloader = UpdateDownloader(
-        client: MockClient.streaming((request, bodyStream) async => _stream(const [], status: 404)),
+        client: MockClient.streaming(
+          (request, bodyStream) async => _stream(const [], status: 404),
+        ),
         cacheDirectory: () async => cache,
       );
-      final result = await downloader.downloadToCache(asset(), isMetered: false);
+      final result = await downloader.downloadToCache(
+        asset(),
+        isMetered: false,
+      );
       expect(result.ok, isFalse);
       expect(result.message, contains('404'));
     });
@@ -178,14 +190,19 @@ void main() {
         ),
         cacheDirectory: () async => cache,
       );
-      final result = await downloader.downloadToCache(asset(), isMetered: false);
+      final result = await downloader.downloadToCache(
+        asset(),
+        isMetered: false,
+      );
       expect(result.ok, isFalse);
       expect(result.message, contains('download failed'));
     });
 
     test('rejects a non-https download url', () async {
       final downloader = UpdateDownloader(
-        client: MockClient.streaming((request, bodyStream) async => _stream(const [1])),
+        client: MockClient.streaming(
+          (request, bodyStream) async => _stream(const [1]),
+        ),
         cacheDirectory: () async => cache,
       );
       final result = await downloader.downloadToCache(
@@ -198,7 +215,9 @@ void main() {
 
     test('rejects an asset that is not an apk', () async {
       final downloader = UpdateDownloader(
-        client: MockClient.streaming((request, bodyStream) async => _stream(const [1])),
+        client: MockClient.streaming(
+          (request, bodyStream) async => _stream(const [1]),
+        ),
         cacheDirectory: () async => cache,
       );
       final result = await downloader.downloadToCache(
@@ -214,7 +233,9 @@ void main() {
     test('opens the system installer with the downloaded apk path', () async {
       final bytes = List<int>.filled(8, 1);
       final downloader = UpdateDownloader(
-        client: MockClient.streaming((request, bodyStream) async => _stream(bytes)),
+        client: MockClient.streaming(
+          (request, bodyStream) async => _stream(bytes),
+        ),
         cacheDirectory: () async => cache,
       );
       final downloaded = await downloader.downloadToCache(
@@ -241,10 +262,7 @@ void main() {
             OpenResult(type: ResultType.noAppToOpen, message: 'no installer'),
       );
       final result = await downloader.install(
-        InstalledUpdate(
-          file: File('${cache.path}/x.apk'),
-          size: 1,
-        ),
+        InstalledUpdate(file: File('${cache.path}/x.apk'), size: 1),
       );
       expect(result.ok, isFalse);
       expect(result.message, contains('installer'));
@@ -256,10 +274,7 @@ void main() {
         openApk: (_) async => throw StateError('boom'),
       );
       final result = await downloader.install(
-        InstalledUpdate(
-          file: File('${cache.path}/x.apk'),
-          size: 1,
-        ),
+        InstalledUpdate(file: File('${cache.path}/x.apk'), size: 1),
       );
       expect(result.ok, isFalse);
       expect(result.message, contains('installer'));

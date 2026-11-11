@@ -30,8 +30,11 @@ ApiClient failingClient({Object error = 'boom'}) {
 ApiClient multiClient(Map<String, String> byHost, {String fallback = '{}'}) {
   return ApiClient.fake((request) async {
     final body = byHost[request.url.host] ?? fallback;
-    return http.Response(body, 200,
-        headers: {'content-type': 'application/json'});
+    return http.Response(
+      body,
+      200,
+      headers: {'content-type': 'application/json'},
+    );
   });
 }
 
@@ -44,11 +47,11 @@ class ApiClientRouter {
   ApiClientRouter(this.responses);
 
   ApiClient get api => ApiClient.fake((request) async {
-        final key = '${request.url.host}${request.url.path}';
-        final res = responses[key] ??
-            responses[request.url.host] ??
-            http.Response('unrouted host ${request.url.host}', 404);
-        return res;
-      });
+    final key = '${request.url.host}${request.url.path}';
+    final res =
+        responses[key] ??
+        responses[request.url.host] ??
+        http.Response('unrouted host ${request.url.host}', 404);
+    return res;
+  });
 }
-

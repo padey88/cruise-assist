@@ -33,11 +33,7 @@ class InstalledUpdate {
   final int size;
   final String? sha256;
 
-  const InstalledUpdate({
-    required this.file,
-    required this.size,
-    this.sha256,
-  });
+  const InstalledUpdate({required this.file, required this.size, this.sha256});
 }
 
 /// Failure returned from the downloader or installer, never thrown to UI.
@@ -74,8 +70,7 @@ class _DigestSink implements Sink<Digest> {
 
 /// Streams a release APK to cache, verifies it, and opens Android's installer.
 class UpdateDownloader {
-  static const String defaultAuthority =
-      UpdateService.fileProviderAuthority;
+  static const String defaultAuthority = UpdateService.fileProviderAuthority;
 
   final http.Client _client;
   final bool _ownsClient;
@@ -86,15 +81,13 @@ class UpdateDownloader {
     http.Client? client,
     Future<Directory> Function()? cacheDirectory,
     Future<OpenResult> Function(String path)? openApk,
-  })  : _client = client ?? http.Client(),
-        _ownsClient = client == null,
-        _cacheDirectory = cacheDirectory ?? getApplicationCacheDirectory,
-        _openApk = openApk ?? _systemOpen;
+  }) : _client = client ?? http.Client(),
+       _ownsClient = client == null,
+       _cacheDirectory = cacheDirectory ?? getApplicationCacheDirectory,
+       _openApk = openApk ?? _systemOpen;
 
-  static Future<OpenResult> _systemOpen(String path) => OpenFilex.open(
-        path,
-        type: 'application/vnd.android.package-archive',
-      );
+  static Future<OpenResult> _systemOpen(String path) =>
+      OpenFilex.open(path, type: 'application/vnd.android.package-archive');
 
   /// Downloads [asset]. The caller must pass the current metered state.
   ///
@@ -141,7 +134,9 @@ class UpdateDownloader {
         );
       }
 
-      final expectedTotal = asset.size > 0 ? asset.size : response.contentLength;
+      final expectedTotal = asset.size > 0
+          ? asset.size
+          : response.contentLength;
       final sink = partial.openWrite();
       final digestSink = _DigestSink();
       final hashSink = sha256.startChunkedConversion(digestSink);

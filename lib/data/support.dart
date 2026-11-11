@@ -56,7 +56,8 @@ Future<_Cached<T>?> _readCache<T>(
     if (raw == null) return null;
     final v = raw['v'];
     if (v is! Map<String, dynamic>) return null;
-    final at = DateTime.tryParse(raw['at']?.toString() ?? '') ??
+    final at =
+        DateTime.tryParse(raw['at']?.toString() ?? '') ??
         DateTime.fromMillisecondsSinceEpoch(0);
     return _Cached<T>(decode(v), at);
   } catch (_) {

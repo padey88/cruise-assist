@@ -26,26 +26,26 @@ class WeatherNow {
   });
 
   factory WeatherNow.fromJson(Map<String, dynamic> j) => WeatherNow(
-        tempC: (j['tempC'] as num).toDouble(),
-        feelsC: (j['feelsC'] as num).toDouble(),
-        humidity: (j['humidity'] as num).toInt(),
-        windKph: (j['windKph'] as num).toDouble(),
-        weatherCode: (j['weatherCode'] as num).toInt(),
-        sunrise: _dt(j['sunrise']),
-        sunset: _dt(j['sunset']),
-        observedAt: _dt(j['observedAt']) ?? DateTime.now(),
-      );
+    tempC: (j['tempC'] as num).toDouble(),
+    feelsC: (j['feelsC'] as num).toDouble(),
+    humidity: (j['humidity'] as num).toInt(),
+    windKph: (j['windKph'] as num).toDouble(),
+    weatherCode: (j['weatherCode'] as num).toInt(),
+    sunrise: _dt(j['sunrise']),
+    sunset: _dt(j['sunset']),
+    observedAt: _dt(j['observedAt']) ?? DateTime.now(),
+  );
 
   Map<String, dynamic> toJson() => {
-        'tempC': tempC,
-        'feelsC': feelsC,
-        'humidity': humidity,
-        'windKph': windKph,
-        'weatherCode': weatherCode,
-        'sunrise': sunrise?.toIso8601String(),
-        'sunset': sunset?.toIso8601String(),
-        'observedAt': observedAt.toIso8601String(),
-      };
+    'tempC': tempC,
+    'feelsC': feelsC,
+    'humidity': humidity,
+    'windKph': windKph,
+    'weatherCode': weatherCode,
+    'sunrise': sunrise?.toIso8601String(),
+    'sunset': sunset?.toIso8601String(),
+    'observedAt': observedAt.toIso8601String(),
+  };
 }
 
 class DayForecast {
@@ -64,20 +64,20 @@ class DayForecast {
   });
 
   factory DayForecast.fromJson(Map<String, dynamic> j) => DayForecast(
-        day: _dt(j['day'])!,
-        code: (j['code'] as num).toInt(),
-        minC: (j['minC'] as num).toDouble(),
-        maxC: (j['maxC'] as num).toDouble(),
-        rainMm: (j['rainMm'] as num?)?.toDouble(),
-      );
+    day: _dt(j['day'])!,
+    code: (j['code'] as num).toInt(),
+    minC: (j['minC'] as num).toDouble(),
+    maxC: (j['maxC'] as num).toDouble(),
+    rainMm: (j['rainMm'] as num?)?.toDouble(),
+  );
 
   Map<String, dynamic> toJson() => {
-        'day': day.toIso8601String(),
-        'code': code,
-        'minC': minC,
-        'maxC': maxC,
-        'rainMm': rainMm,
-      };
+    'day': day.toIso8601String(),
+    'code': code,
+    'minC': minC,
+    'maxC': maxC,
+    'rainMm': rainMm,
+  };
 }
 
 class AirQuality {
@@ -85,23 +85,19 @@ class AirQuality {
   final double? pm25;
   final DateTime observedAt;
 
-  const AirQuality({
-    required this.usAqi,
-    required this.observedAt,
-    this.pm25,
-  });
+  const AirQuality({required this.usAqi, required this.observedAt, this.pm25});
 
   factory AirQuality.fromJson(Map<String, dynamic> j) => AirQuality(
-        usAqi: (j['usAqi'] as num).toInt(),
-        pm25: (j['pm25'] as num?)?.toDouble(),
-        observedAt: _dt(j['observedAt']) ?? DateTime.now(),
-      );
+    usAqi: (j['usAqi'] as num).toInt(),
+    pm25: (j['pm25'] as num?)?.toDouble(),
+    observedAt: _dt(j['observedAt']) ?? DateTime.now(),
+  );
 
   Map<String, dynamic> toJson() => {
-        'usAqi': usAqi,
-        'pm25': pm25,
-        'observedAt': observedAt.toIso8601String(),
-      };
+    'usAqi': usAqi,
+    'pm25': pm25,
+    'observedAt': observedAt.toIso8601String(),
+  };
 }
 
 class PrayerTime {
@@ -121,21 +117,25 @@ class PrayerDay {
   final String zone;
   final List<PrayerTime> times;
 
-  const PrayerDay({required this.date, required this.zone, required this.times});
+  const PrayerDay({
+    required this.date,
+    required this.zone,
+    required this.times,
+  });
 
   factory PrayerDay.fromJson(Map<String, dynamic> j) => PrayerDay(
-        date: _dt(j['date'])!,
-        zone: j['zone'] as String,
-        times: (j['times'] as List)
-            .map((e) => PrayerTime.fromJson(e as Map<String, dynamic>))
-            .toList(growable: false),
-      );
+    date: _dt(j['date'])!,
+    zone: j['zone'] as String,
+    times: (j['times'] as List)
+        .map((e) => PrayerTime.fromJson(e as Map<String, dynamic>))
+        .toList(growable: false),
+  );
 
   Map<String, dynamic> toJson() => {
-        'date': date.toIso8601String(),
-        'zone': zone,
-        'times': times.map((e) => e.toJson()).toList(),
-      };
+    'date': date.toIso8601String(),
+    'zone': zone,
+    'times': times.map((e) => e.toJson()).toList(),
+  };
 
   /// The next prayer strictly after [now], rolling to tomorrow's Fajr when the
   /// day's list is exhausted. Returns null only for an empty schedule.
@@ -169,18 +169,18 @@ class FuelPrices {
   });
 
   factory FuelPrices.fromJson(Map<String, dynamic> j) => FuelPrices(
-        ron95: (j['ron95'] as num?)?.toDouble(),
-        ron97: (j['ron97'] as num?)?.toDouble(),
-        diesel: (j['diesel'] as num?)?.toDouble(),
-        effectiveFrom: _dt(j['effectiveFrom'])!,
-      );
+    ron95: (j['ron95'] as num?)?.toDouble(),
+    ron97: (j['ron97'] as num?)?.toDouble(),
+    diesel: (j['diesel'] as num?)?.toDouble(),
+    effectiveFrom: _dt(j['effectiveFrom'])!,
+  );
 
   Map<String, dynamic> toJson() => {
-        'ron95': ron95,
-        'ron97': ron97,
-        'diesel': diesel,
-        'effectiveFrom': effectiveFrom.toIso8601String(),
-      };
+    'ron95': ron95,
+    'ron97': ron97,
+    'diesel': diesel,
+    'effectiveFrom': effectiveFrom.toIso8601String(),
+  };
 }
 
 class FxRate {
@@ -210,20 +210,20 @@ class Alert {
   });
 
   factory Alert.fromJson(Map<String, dynamic> j) => Alert(
-        title: j['title'] as String,
-        body: j['body'] as String?,
-        severity: j['severity'] as String?,
-        at: _dt(j['at']),
-        source: j['source'] as String,
-      );
+    title: j['title'] as String,
+    body: j['body'] as String?,
+    severity: j['severity'] as String?,
+    at: _dt(j['at']),
+    source: j['source'] as String,
+  );
 
   Map<String, dynamic> toJson() => {
-        'title': title,
-        'body': body,
-        'severity': severity,
-        'at': at?.toIso8601String(),
-        'source': source,
-      };
+    'title': title,
+    'body': body,
+    'severity': severity,
+    'at': at?.toIso8601String(),
+    'source': source,
+  };
 }
 
 class ChecklistItem {
@@ -231,16 +231,20 @@ class ChecklistItem {
   final String text;
   final bool done;
 
-  const ChecklistItem({required this.id, required this.text, this.done = false});
+  const ChecklistItem({
+    required this.id,
+    required this.text,
+    this.done = false,
+  });
 
   ChecklistItem copyWith({String? text, bool? done}) =>
       ChecklistItem(id: id, text: text ?? this.text, done: done ?? this.done);
 
   factory ChecklistItem.fromJson(Map<String, dynamic> j) => ChecklistItem(
-        id: j['id'] as String,
-        text: j['text'] as String,
-        done: j['done'] as bool? ?? false,
-      );
+    id: j['id'] as String,
+    text: j['text'] as String,
+    done: j['done'] as bool? ?? false,
+  );
 
   Map<String, dynamic> toJson() => {'id': id, 'text': text, 'done': done};
 }
@@ -253,16 +257,16 @@ class Note {
   const Note({required this.id, required this.text, required this.updatedAt});
 
   factory Note.fromJson(Map<String, dynamic> j) => Note(
-        id: j['id'] as String,
-        text: j['text'] as String,
-        updatedAt: _dt(j['updatedAt']) ?? DateTime.now(),
-      );
+    id: j['id'] as String,
+    text: j['text'] as String,
+    updatedAt: _dt(j['updatedAt']) ?? DateTime.now(),
+  );
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'text': text,
-        'updatedAt': updatedAt.toIso8601String(),
-      };
+    'id': id,
+    'text': text,
+    'updatedAt': updatedAt.toIso8601String(),
+  };
 }
 
 class TransitVehicle {
@@ -278,14 +282,18 @@ class TransitVehicle {
   });
 
   factory TransitVehicle.fromJson(Map<String, dynamic> j) => TransitVehicle(
-        id: j['id'] as String,
-        route: j['route'] as String? ?? '',
-        lat: (j['lat'] as num).toDouble(),
-        lng: (j['lng'] as num).toDouble(),
-      );
+    id: j['id'] as String,
+    route: j['route'] as String? ?? '',
+    lat: (j['lat'] as num).toDouble(),
+    lng: (j['lng'] as num).toDouble(),
+  );
 
-  Map<String, dynamic> toJson() =>
-      {'id': id, 'route': route, 'lat': lat, 'lng': lng};
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'route': route,
+    'lat': lat,
+    'lng': lng,
+  };
 }
 
 class Place {
@@ -303,20 +311,20 @@ class Place {
   });
 
   factory Place.fromJson(Map<String, dynamic> j) => Place(
-        name: j['name'] as String,
-        kind: j['kind'] as String?,
-        lat: (j['lat'] as num).toDouble(),
-        lng: (j['lng'] as num).toDouble(),
-        distanceM: (j['distanceM'] as num?)?.toDouble(),
-      );
+    name: j['name'] as String,
+    kind: j['kind'] as String?,
+    lat: (j['lat'] as num).toDouble(),
+    lng: (j['lng'] as num).toDouble(),
+    distanceM: (j['distanceM'] as num?)?.toDouble(),
+  );
 
   Map<String, dynamic> toJson() => {
-        'name': name,
-        'kind': kind,
-        'lat': lat,
-        'lng': lng,
-        'distanceM': distanceM,
-      };
+    'name': name,
+    'kind': kind,
+    'lat': lat,
+    'lng': lng,
+    'distanceM': distanceM,
+  };
 }
 
 class EvCharger {
@@ -334,20 +342,20 @@ class EvCharger {
   });
 
   factory EvCharger.fromJson(Map<String, dynamic> j) => EvCharger(
-        name: j['name'] as String,
-        lat: (j['lat'] as num).toDouble(),
-        lng: (j['lng'] as num).toDouble(),
-        maxKw: (j['maxKw'] as num?)?.toInt(),
-        status: j['status'] as String?,
-      );
+    name: j['name'] as String,
+    lat: (j['lat'] as num).toDouble(),
+    lng: (j['lng'] as num).toDouble(),
+    maxKw: (j['maxKw'] as num?)?.toInt(),
+    status: j['status'] as String?,
+  );
 
   Map<String, dynamic> toJson() => {
-        'name': name,
-        'lat': lat,
-        'lng': lng,
-        'maxKw': maxKw,
-        'status': status,
-      };
+    'name': name,
+    'lat': lat,
+    'lng': lng,
+    'maxKw': maxKw,
+    'status': status,
+  };
 }
 
 class LyricsLine {
@@ -355,11 +363,12 @@ class LyricsLine {
   final String text;
   const LyricsLine(this.at, this.text);
 
-  factory LyricsLine.fromJson(Map<String, dynamic> j) =>
-      LyricsLine(Duration(milliseconds: (j['ms'] as num).toInt()), j['text'] as String);
+  factory LyricsLine.fromJson(Map<String, dynamic> j) => LyricsLine(
+    Duration(milliseconds: (j['ms'] as num).toInt()),
+    j['text'] as String,
+  );
 
-  Map<String, dynamic> toJson() =>
-      {'ms': at.inMilliseconds, 'text': text};
+  Map<String, dynamic> toJson() => {'ms': at.inMilliseconds, 'text': text};
 }
 
 class Lyrics {
@@ -375,20 +384,20 @@ class Lyrics {
   });
 
   factory Lyrics.fromJson(Map<String, dynamic> j) => Lyrics(
-        track: j['track'] as String?,
-        artist: j['artist'] as String?,
-        synced: j['synced'] as bool? ?? false,
-        lines: (j['lines'] as List)
-            .map((e) => LyricsLine.fromJson(e as Map<String, dynamic>))
-            .toList(growable: false),
-      );
+    track: j['track'] as String?,
+    artist: j['artist'] as String?,
+    synced: j['synced'] as bool? ?? false,
+    lines: (j['lines'] as List)
+        .map((e) => LyricsLine.fromJson(e as Map<String, dynamic>))
+        .toList(growable: false),
+  );
 
   Map<String, dynamic> toJson() => {
-        'track': track,
-        'artist': artist,
-        'synced': synced,
-        'lines': lines.map((e) => e.toJson()).toList(),
-      };
+    'track': track,
+    'artist': artist,
+    'synced': synced,
+    'lines': lines.map((e) => e.toJson()).toList(),
+  };
 }
 
 class RadioStation {
@@ -404,14 +413,18 @@ class RadioStation {
   });
 
   factory RadioStation.fromJson(Map<String, dynamic> j) => RadioStation(
-        id: j['id'] as String,
-        name: j['name'] as String,
-        url: j['url'] as String,
-        favicon: j['favicon'] as String?,
-      );
+    id: j['id'] as String,
+    name: j['name'] as String,
+    url: j['url'] as String,
+    favicon: j['favicon'] as String?,
+  );
 
-  Map<String, dynamic> toJson() =>
-      {'id': id, 'name': name, 'url': url, 'favicon': favicon};
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'name': name,
+    'url': url,
+    'favicon': favicon,
+  };
 }
 
 class SportEvent {
@@ -433,24 +446,24 @@ class SportEvent {
   });
 
   factory SportEvent.fromJson(Map<String, dynamic> j) => SportEvent(
-        league: j['league'] as String,
-        home: j['home'] as String,
-        away: j['away'] as String,
-        homeScore: j['homeScore']?.toString(),
-        awayScore: j['awayScore']?.toString(),
-        kickoff: _dt(j['kickoff']),
-        status: j['status'] as String? ?? '',
-      );
+    league: j['league'] as String,
+    home: j['home'] as String,
+    away: j['away'] as String,
+    homeScore: j['homeScore']?.toString(),
+    awayScore: j['awayScore']?.toString(),
+    kickoff: _dt(j['kickoff']),
+    status: j['status'] as String? ?? '',
+  );
 
   Map<String, dynamic> toJson() => {
-        'league': league,
-        'home': home,
-        'away': away,
-        'homeScore': homeScore,
-        'awayScore': awayScore,
-        'kickoff': kickoff?.toIso8601String(),
-        'status': status,
-      };
+    'league': league,
+    'home': home,
+    'away': away,
+    'homeScore': homeScore,
+    'awayScore': awayScore,
+    'kickoff': kickoff?.toIso8601String(),
+    'status': status,
+  };
 }
 
 class Shortcut {
@@ -458,17 +471,26 @@ class Shortcut {
   final String label;
   final String? package;
   final String? uri;
-  const Shortcut({required this.id, required this.label, this.package, this.uri});
+  const Shortcut({
+    required this.id,
+    required this.label,
+    this.package,
+    this.uri,
+  });
 
   factory Shortcut.fromJson(Map<String, dynamic> j) => Shortcut(
-        id: j['id'] as String,
-        label: j['label'] as String,
-        package: j['package'] as String?,
-        uri: j['uri'] as String?,
-      );
+    id: j['id'] as String,
+    label: j['label'] as String,
+    package: j['package'] as String?,
+    uri: j['uri'] as String?,
+  );
 
-  Map<String, dynamic> toJson() =>
-      {'id': id, 'label': label, 'package': package, 'uri': uri};
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'label': label,
+    'package': package,
+    'uri': uri,
+  };
 }
 
 DateTime? _dt(Object? v) {
