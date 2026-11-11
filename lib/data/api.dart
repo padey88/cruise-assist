@@ -34,8 +34,12 @@ class ApiClient {
               'overpass-api.de': Duration(seconds: 1),
             };
 
+  /// A client backed by [handler] with politeness spacing disabled.
+  ///
+  /// Host spacing exists to be kind to live APIs; in a test it only makes the
+  /// suite sleep. A fake must never wait on the clock.
   static ApiClient fake(Future<http.Response> Function(http.Request) handler) =>
-      ApiClient(client: MockClient(handler));
+      ApiClient(client: MockClient(handler), hostSpacing: const {});
 
   int failuresFor(String host) => _failures[host] ?? 0;
 
