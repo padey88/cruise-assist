@@ -8,6 +8,9 @@
 # Release artifacts
 dist/
 release_notes.md
+
+# Decompiled original APK — reference only, never redistributed
+reference/
 .atom/
 .build/
 .buildlog/
