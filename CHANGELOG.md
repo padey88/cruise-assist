@@ -43,6 +43,21 @@ ads and no telemetry.
 - **CI** — analyze and test on every push; tagged releases build and publish
   APKs with the changelog section as the release body.
 
+### Verified
+
+- `flutter analyze` — 0 issues.
+- `flutter test` — 244 passing, 12 skipped (live-network tests, run with `LIVE=1`).
+- Release APKs built and signed; universal, arm64-v8a, armeabi-v7a, x86_64.
+- Installed and launched on a physical Android device (Fire TV, API 25,
+  1920x1080): process alive, no `FATAL`/`AndroidRuntime` in logcat, dashboard
+  rendered with live weather, prayer, fuel and clock data.
+- In-app updater checked against the live public release: API returns
+  `tag_name`, per-asset `digest`, and the universal APK is selected. All
+  published `sha256` digests match the local build hashes.
+
+See [docs/VERIFICATION.md](docs/VERIFICATION.md) for exactly what was and was
+not exercised.
+
 ### Known limitations
 
 - **Perodua Smart Link projection is not implemented.** The original

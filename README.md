@@ -28,7 +28,12 @@ expecting it to mirror onto a Perodua head unit.
 | Transit, EV, POI, radar, radio, lyrics, sports | Working, per-widget |
 | USB AOA head-unit detection + diagnostics | Working |
 | Perodua Smart Link video projection | **Not implemented** |
-| In-app updates from GitHub releases | Working |
+| In-app updates from GitHub releases | Working, verified against live v0.1.0 |
+
+What was actually run, on what hardware, and what remains unverified is in
+[docs/VERIFICATION.md](docs/VERIFICATION.md): `flutter analyze` clean,
+**244 tests passing**, release APKs built and signed, and the app installed and
+launched on a physical Android device with live data rendering.
 
 ## Why clean-room
 
@@ -70,8 +75,17 @@ built. There are no accounts, no ads, and no telemetry.
 
 ## Install
 
-Grab the APK from Releases and sideload it. Full steps, including enabling
-unknown sources and the update flow, are in [docs/INSTALL.md](docs/INSTALL.md).
+**[Download the latest APK](https://github.com/padey88/cruise-assist/releases/latest)**
+and sideload it:
+
+- `cruise-assist-<ver>-arm64-v8a.apk` — Sony Xperia 10 IV, most modern phones
+- `cruise-assist-<ver>-universal.apk` — if you are unsure of your ABI
+
+Release APKs are signed with `CN=Cruise Assist, O=Fadhil Rashid`
+(SHA-256 `7613b1b4…4557`). Verify with `sha256sum -c SHA256SUMS.txt`.
+
+Full steps, including enabling unknown sources and the in-app update flow, are
+in [docs/INSTALL.md](docs/INSTALL.md).
 
 ## Build from source
 

@@ -68,6 +68,13 @@ If the secrets are absent the workflow still builds, but with **debug**
 signing, and prints a loud warning. That APK installs fine for personal use;
 it just cannot upgrade over a release-signed install, and vice versa.
 
+> **Current state:** the PAT in use cannot write Actions secrets (`403` on
+> `repos/…/actions/secrets/public-key`), so the keystore is **not** in CI.
+> `v0.1.0` was therefore built and signed locally with `tool/release.sh`.
+> Until a token with the `secrets` scope is configured, use that script rather
+> than the workflow — otherwise CI would publish debug-signed APKs that cannot
+> upgrade over `v0.1.0`.
+
 > **Important:** pick one signing key and keep it forever. Switching keys means
 > every user (you) must uninstall before installing, losing local state.
 
@@ -88,9 +95,11 @@ including prereleases: `0.2.0-beta.1 < 0.2.0`. Build metadata (`+2`) is ignored
 for precedence, which is correct per semver — but note Android uses the build
 number for upgrade eligibility, so still bump it.
 
-If the repository is private, the unauthenticated API returns 404 and the
-service reports "Update check unavailable" rather than failing silently. In
-that case, publish releases publicly or download the APK manually.
+While the repository was private, the unauthenticated API returned 404 and the
+service reported "Update check unavailable" rather than failing silently. The
+repository is now **public**, so the check works without a token — verified
+against the live `v0.1.0` release: the API returns `tag_name`, per-asset
+`digest` (`sha256:…`) and the universal APK is selected correctly.
 
 ## How the download works
 
